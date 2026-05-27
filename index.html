@@ -1974,6 +1974,12 @@ const CHORD_PAD_NOTES = {
   Am: [220.0, 261.63, 329.63],
   F: [174.61, 220.0, 261.63],
 };
+const MELODY_VOLUME = 0.32;
+const PREVIEW_VOLUME = 0.3;
+const PAD_VOLUME = {
+  organ: 0.034,
+  strings: 0.024,
+};
 const DEFAULT_NOTE_DURATION = 1;
 const BEATS_PER_MEASURE = 4;
 const TIME_SIGNATURE_LABEL = "4/4";
@@ -4218,7 +4224,7 @@ async function previewNote(note, duration) {
   if (note.type === "rest") return;
   const context = await ensureAudioContext();
   if (!context) return;
-  playTone(context, note.freq, 0, Math.min(duration * 0.35, 0.55), 0.2, false);
+  playTone(context, note.freq, 0, Math.min(duration * 0.35, 0.55), PREVIEW_VOLUME, false);
 }
 
 async function previewMotif(motif) {
@@ -4332,7 +4338,7 @@ function scheduleChordHighlights(beatSeconds) {
   });
 }
 
-function playTone(context, frequency, startDelay, duration, volume = 0.2, shouldTrack = true) {
+function playTone(context, frequency, startDelay, duration, volume = MELODY_VOLUME, shouldTrack = true) {
   const oscillator = context.createOscillator();
   const gain = context.createGain();
   const start = context.currentTime + startDelay;
@@ -4359,7 +4365,7 @@ function playPadTone(context, frequency, startDelay, duration, sound, noteIndex)
   const attack = Math.min(0.38, duration * 0.28);
   const release = Math.min(0.48, duration * 0.34);
   const releaseStart = Math.max(start + attack + 0.03, stop - release);
-  const volume = sound === "strings" ? 0.011 : 0.017;
+  const volume = sound === "strings" ? PAD_VOLUME.strings : PAD_VOLUME.organ;
 
   oscillator.type = sound === "strings" ? "sawtooth" : "triangle";
   oscillator.frequency.setValueAtTime(frequency, start);
