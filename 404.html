@@ -754,6 +754,20 @@ select {
   border-color: #bfe0d6;
 }
 
+#loudModeBtn {
+  color: #7c2d12;
+  background: #fff4c4;
+  border-color: #f59e0b;
+  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.14);
+}
+
+#loudModeBtn.active {
+  color: #ffffff;
+  background: #d97706;
+  border-color: #92400e;
+  box-shadow: 0 12px 24px rgba(217, 119, 6, 0.28);
+}
+
 #playBtn {
   min-width: 138px;
   color: #061b17;
@@ -1827,6 +1841,7 @@ textarea.hidden-textarea {
             <div class="playback-actions">
               <button id="playBtn" class="primary" type="button" aria-label="재생">▶ 재생</button>
               <button id="stopBtn" type="button" aria-label="정지">■ 정지</button>
+              <button id="loudModeBtn" type="button" aria-pressed="false">수업용 큰 소리 모드</button>
               <label class="switch playback-repeat">
                 <input id="repeatMode" type="checkbox">
                 <span>반복 재생</span>
@@ -1974,6 +1989,14 @@ const CHORD_PAD_NOTES = {
   Am: [220.0, 261.63, 329.63],
   F: [174.61, 220.0, 261.63],
 };
+const MELODY_VOLUME = 1.15;
+const PREVIEW_VOLUME = 1.05;
+const PAD_VOLUME = {
+  organ: 0.14,
+  strings: 0.105,
+};
+const LOUD_MELODY_MULTIPLIER = 2.2;
+const LOUD_PAD_MULTIPLIER = 2.1;
 const DEFAULT_NOTE_DURATION = 1;
 const BEATS_PER_MEASURE = 4;
 const TIME_SIGNATURE_LABEL = "4/4";
@@ -2080,6 +2103,7 @@ const state = {
   timers: [],
   audioNodes: [],
   audioContext: null,
+  loudMode: false,
 };
 
 const PITCH_DRAG_STEP_PX = 30;
@@ -2090,6 +2114,7 @@ const noteButtons = document.querySelector("#noteButtons");
 const passingMode = document.querySelector("#passingMode");
 const padMode = document.querySelector("#padMode");
 const repeatMode = document.querySelector("#repeatMode");
+const loudModeBtn = document.querySelector("#loudModeBtn");
 const boardTitle = document.querySelector("#boardTitle");
 const melodyBoard = document.querySelector("#melodyBoard");
 const beatCount = document.querySelector("#beatCount");
@@ -2151,6 +2176,12 @@ function bindEvents() {
   });
   padMode.addEventListener("change", saveMelody);
   repeatMode.addEventListener("change", saveMelody);
+  loudModeBtn.addEventListener("click", () => {
+    state.loudMode = !state.loudMode;
+    renderLoudModeButton();
+    saveMelody();
+    showToast(state.loudMode ? "수업용 큰 소리 모드를 켰어요." : "수업용 큰 소리 모드를 껐어요.");
+  });
   padSound.addEventListener("change", saveMelody);
   targetBeats.addEventListener("change", () => {
     state.selectedCardIndex = null;
@@ -2503,6 +2534,12 @@ function render() {
   renderGroupVariations();
   renderHint();
   renderMotifWorkshop();
+  renderLoudModeButton();
+}
+
+function renderLoudModeButton() {
+  loudModeBtn.classList.toggle("active", state.loudMode);
+  loudModeBtn.setAttribute("aria-pressed", String(state.loudMode));
 }
 
 function startPitchDrag(event, card, index) {
@@ -4218,7 +4255,7 @@ async function previewNote(note, duration) {
   if (note.type === "rest") return;
   const context = await ensureAudioContext();
   if (!context) return;
-  playTone(context, note.freq, 0, Math.min(duration * 0.35, 0.55), 0.2, false);
+  playTone(context, note.freq, 0, Math.min(duration * 0.35, 0.55), PREVIEW_VOLUME, false);
 }
 
 async function previewMotif(motif) {
@@ -4332,16 +4369,16 @@ function scheduleChordHighlights(beatSeconds) {
   });
 }
 
-function playTone(context, frequency, startDelay, duration, volume = 0.2, shouldTrack = true) {
+function playTone(context, frequency, startDelay, duration, volume = MELODY_VOLUME, shouldTrack = true) {
   const oscillator = context.createOscillator();
   const gain = context.createGain();
   const start = context.currentTime + startDelay;
   const stop = start + duration;
 
-  oscillator.type = "sine";
+  oscillator.type = state.loudMode ? "square" : "triangle";
   oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(audioVolume(volume), start + 0.02);
   gain.gain.exponentialRampToValueAtTime(0.0001, Math.max(start + 0.03, stop - 0.04));
 
   oscillator.connect(gain).connect(context.destination);
@@ -4359,7 +4396,7 @@ function playPadTone(context, frequency, startDelay, duration, sound, noteIndex)
   const attack = Math.min(0.38, duration * 0.28);
   const release = Math.min(0.48, duration * 0.34);
   const releaseStart = Math.max(start + attack + 0.03, stop - release);
-  const volume = sound === "strings" ? 0.011 : 0.017;
+  const volume = audioVolume(sound === "strings" ? PAD_VOLUME.strings : PAD_VOLUME.organ, "pad");
 
   oscillator.type = sound === "strings" ? "sawtooth" : "triangle";
   oscillator.frequency.setValueAtTime(frequency, start);
@@ -4377,6 +4414,12 @@ function playPadTone(context, frequency, startDelay, duration, sound, noteIndex)
   trackAudioNode(oscillator, gain, filter);
   oscillator.start(start);
   oscillator.stop(stop);
+}
+
+function audioVolume(baseVolume, role = "melody") {
+  if (!state.loudMode) return baseVolume;
+  const multiplier = role === "pad" ? LOUD_PAD_MULTIPLIER : LOUD_MELODY_MULTIPLIER;
+  return baseVolume * multiplier;
 }
 
 function trackAudioNode(oscillator, gain, filter = null) {
@@ -4600,6 +4643,7 @@ function saveMelody() {
       pad: padMode.checked,
       padSound: padSound.value,
       repeat: repeatMode.checked,
+      loudMode: state.loudMode,
       group: getGroupData(),
     }));
   } catch {
@@ -4626,6 +4670,7 @@ function loadSavedMelody() {
     if (typeof saved.pad === "boolean") padMode.checked = saved.pad;
     if (saved.padSound === "organ" || saved.padSound === "strings") padSound.value = saved.padSound;
     if (typeof saved.repeat === "boolean") repeatMode.checked = saved.repeat;
+    if (typeof saved.loudMode === "boolean") state.loudMode = saved.loudMode;
     applyGroupData(saved.group);
   } catch {
     state.melody = [];
