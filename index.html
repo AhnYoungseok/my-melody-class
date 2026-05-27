@@ -1974,11 +1974,11 @@ const CHORD_PAD_NOTES = {
   Am: [220.0, 261.63, 329.63],
   F: [174.61, 220.0, 261.63],
 };
-const MELODY_VOLUME = 0.55;
-const PREVIEW_VOLUME = 0.52;
+const MELODY_VOLUME = 1.15;
+const PREVIEW_VOLUME = 1.05;
 const PAD_VOLUME = {
-  organ: 0.06,
-  strings: 0.045,
+  organ: 0.14,
+  strings: 0.105,
 };
 const DEFAULT_NOTE_DURATION = 1;
 const BEATS_PER_MEASURE = 4;
@@ -4344,7 +4344,7 @@ function playTone(context, frequency, startDelay, duration, volume = MELODY_VOLU
   const start = context.currentTime + startDelay;
   const stop = start + duration;
 
-  oscillator.type = "sine";
+  oscillator.type = "triangle";
   oscillator.frequency.value = frequency;
   gain.gain.setValueAtTime(0.0001, start);
   gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
