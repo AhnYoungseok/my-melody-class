@@ -2103,6 +2103,7 @@ const state = {
   timers: [],
   audioNodes: [],
   audioContext: null,
+  pianoWave: null,
   loudMode: false,
 };
 
@@ -4372,19 +4373,45 @@ function scheduleChordHighlights(beatSeconds) {
 function playTone(context, frequency, startDelay, duration, volume = MELODY_VOLUME, shouldTrack = true) {
   const oscillator = context.createOscillator();
   const gain = context.createGain();
+  const filter = context.createBiquadFilter();
+  const compressor = context.createDynamicsCompressor();
   const start = context.currentTime + startDelay;
   const stop = start + duration;
+  const peak = audioVolume(volume);
+  const attackEnd = start + 0.012;
+  const decayEnd = Math.min(start + Math.max(0.08, duration * 0.34), stop - 0.05);
+  const sustainLevel = Math.max(0.0008, peak * 0.34);
 
-  oscillator.type = state.loudMode ? "square" : "triangle";
+  oscillator.setPeriodicWave(getPianoWave(context));
   oscillator.frequency.value = frequency;
-  gain.gain.setValueAtTime(0.0001, start);
-  gain.gain.exponentialRampToValueAtTime(audioVolume(volume), start + 0.02);
-  gain.gain.exponentialRampToValueAtTime(0.0001, Math.max(start + 0.03, stop - 0.04));
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(state.loudMode ? 3400 : 3000, start);
+  filter.Q.setValueAtTime(0.45, start);
+  compressor.threshold.setValueAtTime(-8, start);
+  compressor.knee.setValueAtTime(18, start);
+  compressor.ratio.setValueAtTime(5, start);
+  compressor.attack.setValueAtTime(0.004, start);
+  compressor.release.setValueAtTime(0.12, start);
 
-  oscillator.connect(gain).connect(context.destination);
-  if (shouldTrack) trackAudioNode(oscillator, gain);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(peak, attackEnd);
+  if (decayEnd > attackEnd) {
+    gain.gain.exponentialRampToValueAtTime(sustainLevel, decayEnd);
+  }
+  gain.gain.exponentialRampToValueAtTime(0.0001, Math.max(attackEnd + 0.03, stop - 0.03));
+
+  oscillator.connect(filter).connect(gain).connect(compressor).connect(context.destination);
+  if (shouldTrack) trackAudioNode(oscillator, gain, filter, compressor);
   oscillator.start(start);
   oscillator.stop(stop);
+}
+
+function getPianoWave(context) {
+  if (state.pianoWave) return state.pianoWave;
+  const real = new Float32Array([0, 0, 0, 0, 0, 0, 0]);
+  const imag = new Float32Array([0, 1, 0.42, 0.2, 0.1, 0.045, 0.02]);
+  state.pianoWave = context.createPeriodicWave(real, imag);
+  return state.pianoWave;
 }
 
 function playPadTone(context, frequency, startDelay, duration, sound, noteIndex) {
@@ -4422,14 +4449,15 @@ function audioVolume(baseVolume, role = "melody") {
   return baseVolume * multiplier;
 }
 
-function trackAudioNode(oscillator, gain, filter = null) {
-  const item = { oscillator, gain, filter };
+function trackAudioNode(oscillator, gain, filter = null, compressor = null) {
+  const item = { oscillator, gain, filter, compressor };
   state.audioNodes.push(item);
   oscillator.onended = () => {
     try {
       oscillator.disconnect();
       gain.disconnect();
       if (filter) filter.disconnect();
+      if (compressor) compressor.disconnect();
     } catch {
       // 이미 정리된 노드는 조용히 무시합니다.
     }
