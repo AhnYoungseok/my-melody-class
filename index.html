@@ -1,0 +1,4664 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d6c77">
+    <meta http-equiv="Cache-Control" content="no-store">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="멜로디 만들기">
+    <title>내 노래는 내가 만든다</title>
+    <style>
+:root {
+  --bg: #f5f8fb;
+  --surface: #ffffff;
+  --surface-strong: #edf7f4;
+  --ink: #17222b;
+  --muted: #5a6671;
+  --line: #d7e2e8;
+  --accent: #209a92;
+  --accent-dark: #0d6c77;
+  --success: #267a45;
+  --warning: #a96500;
+  --danger: #b94141;
+  --shadow: 0 14px 34px rgba(32, 56, 77, 0.11);
+  --radius: 8px;
+  font-family: "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+button,
+select,
+textarea,
+input {
+  font: inherit;
+}
+
+button {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 11px 14px;
+  color: var(--ink);
+  background: var(--surface);
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(32, 56, 77, 0.12);
+  }
+}
+
+button:focus-visible {
+  outline: 3px solid rgba(32, 154, 146, 0.3);
+  outline-offset: 2px;
+}
+
+.app-shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) 0 max(40px, env(safe-area-inset-bottom));
+}
+
+.topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.topbar > div:first-child {
+  display: grid;
+  align-content: center;
+  text-align: center;
+}
+
+.hero-subtitle,
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+.hero-subtitle {
+  margin: 8px 0 0;
+  color: var(--accent-dark);
+  font-size: 1.16rem;
+  font-weight: 800;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 8px;
+  font-size: 1.28rem;
+  letter-spacing: 0;
+  text-align: center;
+}
+
+h3 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1.12fr 0.95fr;
+  gap: 16px;
+}
+
+.panel {
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(215, 226, 232, 0.95);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.composer-panel {
+  grid-column: 1;
+}
+
+.board-panel {
+  grid-column: 2;
+  grid-row: span 2;
+}
+
+.group-panel {
+  grid-column: 1 / -1;
+}
+
+.guide-panel {
+  grid-column: 1 / -1;
+}
+
+.panel-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.panel-heading.compact {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  align-items: center;
+  text-align: center;
+}
+
+.panel-heading.compact > div:first-child {
+  width: 100%;
+}
+
+.panel-heading p {
+  margin-bottom: 0;
+}
+
+.composer-heading {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  text-align: center;
+}
+
+.composer-heading h2 {
+  width: 100%;
+}
+
+.composer-heading .controls-inline {
+  justify-content: center;
+}
+
+.controls-inline,
+.playback-actions,
+.edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.controls-inline {
+  justify-content: flex-end;
+}
+
+.switch,
+.select-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  color: var(--ink);
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.meter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 39px;
+  padding: 8px 12px;
+  color: #7c2d12;
+  background: #fff1c7;
+  border: 1px solid #f59e0b;
+  border-radius: var(--radius);
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.meter-badge.compact {
+  min-height: 28px;
+  padding: 4px 8px;
+  font-size: 0.84rem;
+}
+
+select {
+  border: 0;
+  color: var(--accent-dark);
+  background: transparent;
+  font-weight: 900;
+  outline: none;
+}
+
+.style-panel,
+.money-panel,
+.motif-panel {
+  margin-bottom: 14px;
+  padding: 14px;
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 24px rgba(23, 34, 43, 0.07);
+}
+
+.style-panel {
+  background: #fffaf2;
+  border-color: #ead7ad;
+}
+
+.money-panel {
+  background: #f1faf6;
+  border-color: #bfe0d1;
+}
+
+.style-heading,
+.money-heading {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.style-heading span,
+.money-heading span {
+  color: var(--ink);
+  font-size: 1.04rem;
+  font-weight: 900;
+}
+
+.style-heading small,
+.money-heading small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.style-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.style-btn {
+  --style-color: var(--accent);
+  min-height: 42px;
+  padding: 10px 9px;
+  color: var(--ink);
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--style-color) 46%, var(--line));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.58);
+  text-align: center;
+}
+
+.style-btn.active {
+  color: #16120e;
+  background: color-mix(in srgb, var(--style-color) 34%, #ffffff);
+  border-color: var(--style-color);
+  box-shadow: 0 9px 18px rgba(57, 45, 31, 0.11), inset 0 0 0 2px color-mix(in srgb, var(--style-color) 78%, #ffffff);
+}
+
+.style-btn[data-style="bright"] {
+  --style-color: #d9a318;
+}
+
+.style-btn[data-style="play"] {
+  --style-color: #3e9c68;
+}
+
+.style-btn[data-style="lullaby"],
+.style-btn[data-style="calm"] {
+  --style-color: #6f87d8;
+}
+
+.style-btn[data-style="folk"] {
+  --style-color: #8c6ccf;
+}
+
+.style-btn[data-style="pop"],
+.style-btn[data-style="dance"] {
+  --style-color: #e35d7b;
+}
+
+.style-btn[data-style="jazz"] {
+  --style-color: #b26a23;
+}
+
+.money-buttons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.money-btn {
+  min-height: 40px;
+  padding: 9px 8px;
+  color: #18503b;
+  background: #ffffff;
+  border-color: #b6dacb;
+}
+
+.money-btn.active {
+  color: #ffffff;
+  background: #2e7d58;
+  border-color: #2e7d58;
+  box-shadow: 0 9px 18px rgba(46, 125, 88, 0.15);
+}
+
+.money-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.money-row span {
+  display: grid;
+  place-items: center;
+  min-height: 42px;
+  color: var(--accent-dark);
+  background: var(--surface-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.money-row span.active {
+  color: #ffffff;
+  background: #2e7d58;
+  border-color: #2e7d58;
+  box-shadow: 0 10px 22px rgba(46, 125, 88, 0.18);
+}
+
+.hint-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 0;
+  padding: 8px 10px;
+  background: #eef8f3;
+  border: 1px solid #c7e1d5;
+  border-radius: var(--radius);
+}
+
+.motif-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+  background: #f4f1ff;
+  border-color: #cfc3f0;
+}
+
+.motif-copy {
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  justify-items: start;
+  text-align: left;
+  padding: 0;
+}
+
+.motif-section-title {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #402d78;
+  font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.motif-copy strong {
+  line-height: 1.35;
+}
+
+.motif-copy small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.motif-tools {
+  display: grid;
+  gap: 10px;
+}
+
+.seed-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.seed-row label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 9px 10px;
+  color: #402d78;
+  background: #ffffff;
+  border: 1px solid #c9bee9;
+  border-radius: var(--radius);
+  font-weight: 900;
+}
+
+.seed-shapes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.seed-shapes button {
+  --shape-bg: #ffffff;
+  --shape-border: #c9bee9;
+  --shape-ink: #402d78;
+  --shape-active: #624ba6;
+  --shape-active-dark: #463184;
+  min-height: 42px;
+  padding: 9px 8px;
+  color: var(--shape-ink);
+  background: linear-gradient(#ffffff, var(--shape-bg));
+  border-color: var(--shape-border);
+  box-shadow: inset 0 -3px 0 rgba(23, 34, 43, 0.08);
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.seed-shapes button.active {
+  color: #ffffff;
+  background: linear-gradient(var(--shape-active), var(--shape-active-dark));
+  border-color: var(--shape-active-dark);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.18), 0 8px 16px rgba(23, 34, 43, 0.16);
+}
+
+.seed-shapes button[data-seed-shape="rise"] {
+  --shape-bg: #dff6ff;
+  --shape-border: #36a9dc;
+  --shape-ink: #075985;
+  --shape-active: #0ea5e9;
+  --shape-active-dark: #0369a1;
+}
+
+.seed-shapes button[data-seed-shape="fall"] {
+  --shape-bg: #e7e9ff;
+  --shape-border: #7c83e6;
+  --shape-ink: #3730a3;
+  --shape-active: #6366f1;
+  --shape-active-dark: #4338ca;
+}
+
+.seed-shapes button[data-seed-shape="wave"] {
+  --shape-bg: #dbfff4;
+  --shape-border: #2dd4bf;
+  --shape-ink: #0f766e;
+  --shape-active: #14b8a6;
+  --shape-active-dark: #0f766e;
+}
+
+.seed-shapes button[data-seed-shape="repeat"] {
+  --shape-bg: #fff1c7;
+  --shape-border: #f59e0b;
+  --shape-ink: #92400e;
+  --shape-active: #f59e0b;
+  --shape-active-dark: #b45309;
+}
+
+.seed-shapes button[data-seed-shape="leap"] {
+  --shape-bg: #ffe4ef;
+  --shape-border: #fb7185;
+  --shape-ink: #be123c;
+  --shape-active: #f43f5e;
+  --shape-active-dark: #be123c;
+}
+
+.seed-shapes button[data-seed-shape="return"] {
+  --shape-bg: #f0e7ff;
+  --shape-border: #a855f7;
+  --shape-ink: #6b21a8;
+  --shape-active: #9333ea;
+  --shape-active-dark: #6b21a8;
+}
+
+.seed-shapes button[data-seed-shape="echo"] {
+  --shape-bg: #e8ffd2;
+  --shape-border: #84cc16;
+  --shape-ink: #4d7c0f;
+  --shape-active: #65a30d;
+  --shape-active-dark: #3f6212;
+}
+
+.seed-shapes button[data-seed-shape="finish"] {
+  --shape-bg: #e4f4e8;
+  --shape-border: #22c55e;
+  --shape-ink: #166534;
+  --shape-active: #16a34a;
+  --shape-active-dark: #166534;
+}
+
+.motif-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+}
+
+.motif-preview span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 52px;
+  min-height: 42px;
+  padding: 8px 10px;
+  color: #402d78;
+  background: #ffffff;
+  border: 1px solid #c9bee9;
+  border-radius: var(--radius);
+  font-weight: 900;
+}
+
+.motif-preview em {
+  color: var(--muted);
+  font-style: normal;
+  font-weight: 700;
+}
+
+.motif-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.motif-actions button {
+  min-height: 42px;
+  padding: 9px 8px;
+  color: #402d78;
+  background: #ffffff;
+  border-color: #c9bee9;
+}
+
+.motif-actions button.primary-lite {
+  color: #ffffff;
+  background: #624ba6;
+  border-color: #624ba6;
+}
+
+.motif-note-picker {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid #c9bee9;
+  border-radius: var(--radius);
+}
+
+.hint-copy {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 8px;
+  min-width: 0;
+  text-align: center;
+}
+
+.hint-copy span {
+  color: #2e7d58;
+  font-size: 0.88rem;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.hint-copy strong {
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.hint-copy small {
+  display: none;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.hint-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.hint-notes,
+.hint-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.hint-note {
+  display: grid;
+  min-width: 42px;
+  min-height: 34px;
+  padding: 5px 7px;
+  place-items: center;
+  gap: 1px;
+  color: #194f38;
+  background: #ffffff;
+  border-color: #b6dacb;
+}
+
+.hint-note strong {
+  font-size: 1rem;
+}
+
+.hint-note small {
+  display: none;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.hint-note.passing {
+  border-style: dashed;
+}
+
+.hint-actions button {
+  min-height: 34px;
+  padding: 6px 9px;
+  font-size: 0.9rem;
+}
+
+.hint-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+  box-shadow: none;
+}
+
+.playback-panel {
+  display: grid;
+  gap: 10px;
+  margin: 6px 0 16px;
+  padding: 14px;
+  background: #eef9f5;
+  border: 2px solid #bfe0d6;
+  border-radius: var(--radius);
+  box-shadow: 0 12px 26px rgba(13, 108, 119, 0.12);
+}
+
+.playback-heading {
+  display: grid;
+  gap: 3px;
+}
+
+.playback-heading span {
+  color: #0d6c77;
+  font-size: 1.04rem;
+  font-weight: 900;
+}
+
+.playback-heading small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.playback-actions {
+  align-items: center;
+}
+
+.edit-actions {
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #bfe0d6;
+}
+
+.playback-actions button,
+.edit-actions button {
+  min-width: 124px;
+  min-height: 56px;
+  padding: 12px 18px;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.playback-repeat {
+  min-height: 56px;
+  background: #ffffff;
+  border-color: #bfe0d6;
+}
+
+#playBtn {
+  min-width: 138px;
+  color: #061b17;
+  background: #20a197;
+  border-color: #20a197;
+  box-shadow: 0 10px 20px rgba(32, 161, 151, 0.22);
+}
+
+#randomBtn {
+  color: #ffffff;
+  background: #624ba6;
+  border-color: #624ba6;
+  box-shadow: 0 10px 20px rgba(98, 75, 166, 0.18);
+}
+
+#clearBtn {
+  color: #b94141;
+  background: #fff7f7;
+  border-color: #e7c3c3;
+}
+
+.note-picker-head {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  margin: 0;
+  text-align: left;
+}
+
+.note-picker-head span {
+  color: var(--accent-dark);
+  font-weight: 900;
+}
+
+.note-picker-head small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+button.active,
+.primary {
+  color: #2b1707;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.danger-lite {
+  color: var(--danger);
+}
+
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(64px, 1fr));
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.scale-keyboard {
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 6px;
+  padding: 10px 8px 8px;
+  background: #2f2b37;
+  border: 1px solid #221f2a;
+  border-radius: var(--radius);
+}
+
+.note-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: 8px 6px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.scale-keyboard .note-btn {
+  min-height: 104px;
+  color: #231f2a;
+  background: linear-gradient(#ffffff, #f5f0e8);
+  border-color: #ded5c8;
+  border-bottom-width: 7px;
+  border-radius: 6px;
+  box-shadow: inset 0 -8px 14px rgba(44, 34, 24, 0.08);
+}
+
+.note-btn strong {
+  font-size: 1.1rem;
+}
+
+.scale-keyboard .note-btn strong {
+  font-size: 1.38rem;
+}
+
+.note-btn small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.note-btn::after {
+  content: none;
+}
+
+.note-btn.passing {
+  background: #fffaf3;
+  border-style: dashed;
+}
+
+.note-btn.rest {
+  background: #f7f3ef;
+}
+
+.note-btn.selected {
+  color: #ffffff;
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+  box-shadow: 0 8px 16px rgba(13, 108, 119, 0.18);
+}
+
+.scale-keyboard .note-btn.selected {
+  background: linear-gradient(#0d6c77, #095560);
+  border-color: #083f47;
+  box-shadow: 0 10px 18px rgba(13, 108, 119, 0.22);
+}
+
+.seed-edit-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.seed-edit-actions button {
+  min-height: 38px;
+  padding: 7px 8px;
+  color: #402d78;
+  background: #ffffff;
+  border-color: #c9bee9;
+}
+
+.note-btn.selected small {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.meter {
+  flex: 0 0 150px;
+  height: 14px;
+  overflow: hidden;
+  background: #f1dfc8;
+  border-radius: 999px;
+}
+
+.meter div {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #f39b3d, #ffd36e);
+  transition: width 0.2s ease;
+}
+
+.board-meter-line {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 0;
+  font-weight: 800;
+}
+
+.melody-board {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-content: start;
+  gap: 7px;
+  min-height: 220px;
+  margin: 0 0 16px;
+  padding: 10px;
+  overflow: hidden;
+  background: #fff8ea;
+  border: 2px solid #f2b24e;
+  border-radius: var(--radius);
+  list-style: none;
+}
+
+.melody-board:empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #b8c9d2;
+}
+
+.melody-board:empty::before {
+  content: "도·레·미·파·솔·라·시·도 건반에서 씨앗 음을 고르고 씨앗 심기를 눌러 시작하세요.";
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.note-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 104px;
+  height: 100%;
+  padding: 9px 8px 8px;
+  background: #fffef9;
+  border: 1px solid #e7b45f;
+  border-radius: 6px;
+  cursor: ns-resize;
+  touch-action: none;
+  text-align: center;
+  user-select: none;
+}
+
+.note-card strong {
+  align-self: center;
+  justify-self: center;
+  font-size: clamp(1.18rem, 1.7vw, 1.72rem);
+  line-height: 1.05;
+  word-break: keep-all;
+}
+
+.note-card.duration-half {
+  padding-inline: 5px;
+}
+
+.note-card.duration-half strong {
+  font-size: clamp(0.92rem, 1.35vw, 1.18rem);
+}
+
+.note-card.duration-half .jeonggan-index {
+  font-size: 0.62rem;
+}
+
+.note-card.duration-half .jeonggan-chord {
+  font-size: 0.86rem;
+}
+
+.note-card.duration-half .jeonggan-pitch {
+  font-size: 0.62rem;
+}
+
+.note-card.duration-long {
+  background: #fffaf0;
+}
+
+.note-card small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.jeonggan-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding-right: 22px;
+  color: #415160;
+  font-weight: 900;
+}
+
+.jeonggan-index {
+  font-size: 0.76rem;
+}
+
+.jeonggan-chord {
+  color: #263b50;
+  font-size: 1.18rem;
+  line-height: 1;
+}
+
+.note-card.measure-start {
+  border-left-width: 3px;
+}
+
+.note-card.measure-start .jeonggan-index {
+  color: #a45f00;
+}
+
+.jeonggan-pitch {
+  justify-self: center;
+}
+
+.note-card.passing {
+  background: #fff9f0;
+  border-style: solid;
+}
+
+.note-card.hook {
+  background: #fff0f7;
+  border-color: #ec4899;
+  box-shadow: inset 0 0 0 2px rgba(236, 72, 153, 0.4);
+}
+
+.note-card.selected {
+  z-index: 1;
+  box-shadow: inset 0 0 0 3px rgba(32, 161, 151, 0.34);
+}
+
+.note-card.dragging {
+  z-index: 3;
+  transform: translateY(-2px);
+  box-shadow: inset 0 0 0 3px rgba(32, 161, 151, 0.48), 0 12px 24px rgba(38, 122, 69, 0.18);
+}
+
+.note-card.playing {
+  z-index: 2;
+  transform: none;
+  box-shadow: inset 0 0 0 3px rgba(38, 122, 69, 0.42);
+}
+
+.remove-card {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  color: var(--danger);
+  background: #fff8f5;
+  cursor: pointer;
+  font-size: 0.9rem;
+  touch-action: manipulation;
+}
+
+.hook-badge {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
+  padding: 1px 5px;
+  color: #9d174d;
+  background: #fce7f3;
+  border: 1px solid #ec4899;
+  border-radius: 999px;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
+.score-box {
+  display: grid;
+  gap: 8px;
+}
+
+.score-heading {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.score-heading label {
+  font-weight: 900;
+}
+
+.score-heading small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.score-preview {
+  min-height: 170px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #fffdf8;
+  border: 2px solid #f0a12b;
+  border-radius: var(--radius);
+}
+
+.score-preview svg {
+  display: block;
+  min-width: 100%;
+}
+
+.score-empty {
+  display: grid;
+  place-items: center;
+  min-height: 170px;
+  padding: 18px;
+  color: var(--muted);
+  text-align: center;
+  font-weight: 900;
+}
+
+textarea {
+  width: 100%;
+  min-height: 92px;
+  padding: 12px;
+  color: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  resize: vertical;
+}
+
+textarea.hidden-textarea {
+  position: absolute;
+  width: 1px;
+  min-height: 1px;
+  height: 1px;
+  padding: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.group-intro {
+  margin: 0 0 14px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.group-meta,
+.group-decision {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.group-field {
+  display: grid;
+  gap: 6px;
+}
+
+.group-field span,
+.member-motif span {
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.group-field input,
+.group-field textarea,
+.member-motif textarea {
+  width: 100%;
+  padding: 11px 12px;
+  color: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.group-field input {
+  min-height: 46px;
+}
+
+.group-field textarea,
+.member-motif textarea {
+  min-height: 74px;
+  resize: vertical;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.role-card {
+  padding: 12px;
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.role-card strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.role-card small {
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.motif-lab {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.member-motif {
+  display: grid;
+  gap: 6px;
+}
+
+.group-decision {
+  align-items: start;
+}
+
+.variation-lab {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: #f8fbff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.variation-source {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.variation-source strong {
+  color: var(--accent-dark);
+}
+
+.variation-source-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.variation-source-notes span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid rgba(32, 154, 146, 0.3);
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: var(--accent-dark);
+  background: var(--surface-strong);
+  font-weight: 900;
+}
+
+.variation-source small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.variation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.variation-card {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  min-width: 0;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.variation-card.selected {
+  border-color: var(--accent-dark);
+  box-shadow: inset 0 0 0 2px rgba(32, 154, 146, 0.28);
+}
+
+.variation-card strong {
+  display: block;
+}
+
+.variation-card p {
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.variation-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-height: 36px;
+  align-items: center;
+}
+
+.variation-notes span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid rgba(32, 154, 146, 0.3);
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: var(--accent-dark);
+  background: var(--surface-strong);
+  font-weight: 900;
+}
+
+.variation-notes span.changed,
+.variation-compare-notes span.changed {
+  color: #8b2f00;
+  background: #fff3d8;
+  border-color: #e59b31;
+}
+
+.variation-notes span.added,
+.variation-compare-notes span.added {
+  color: #1f5d33;
+  background: #e9f8ef;
+  border-color: #78ba8d;
+}
+
+.variation-card button {
+  align-self: end;
+}
+
+.variation-card .selected-mark {
+  display: none;
+  color: var(--accent-dark);
+  font-weight: 900;
+}
+
+.variation-card.selected .selected-mark {
+  display: block;
+}
+
+.variation-actions,
+.variation-reflection-actions,
+.group-preview-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.variation-actions button,
+.variation-reflection-actions button,
+.group-preview-actions button {
+  flex: 1 1 120px;
+}
+
+.variation-empty {
+  display: grid;
+  grid-column: 1 / -1;
+  place-items: center;
+  min-height: 116px;
+  padding: 16px;
+  color: var(--muted);
+  background: #ffffff;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  font-weight: 900;
+  text-align: center;
+}
+
+.variation-reflection {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.variation-reflection-head {
+  display: grid;
+  gap: 3px;
+}
+
+.variation-reflection-head strong {
+  color: var(--accent-dark);
+}
+
+.variation-reflection-head small {
+  color: var(--muted);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.variation-compare {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.variation-compare-row {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  background: #f9fbfc;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.variation-compare-row b {
+  color: var(--ink);
+}
+
+.variation-compare-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.variation-compare-notes span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  border: 1px solid rgba(32, 154, 146, 0.3);
+  border-radius: 999px;
+  padding: 5px 8px;
+  color: var(--accent-dark);
+  background: var(--surface-strong);
+  font-weight: 900;
+}
+
+.variation-arrow {
+  display: grid;
+  place-items: center;
+  color: var(--accent-dark);
+  font-size: 1.4rem;
+  font-weight: 900;
+}
+
+.scale-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+
+.scale-line span {
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+  background: var(--accent);
+  border-radius: 50%;
+  font-size: 1.18rem;
+  font-weight: 900;
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.guide-grid p {
+  margin: 0;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 100;
+  padding: 12px 16px;
+  color: #fff;
+  background: var(--ink);
+  border-radius: 999px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 900px) {
+  .topbar,
+  .layout,
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .composer-panel,
+  .board-panel,
+  .group-panel,
+  .guide-panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .panel-heading {
+    flex-direction: column;
+  }
+
+  .controls-inline {
+    justify-content: flex-start;
+  }
+
+  .style-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .money-buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .hint-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .group-meta,
+  .group-decision {
+    grid-template-columns: 1fr;
+  }
+
+  .variation-compare {
+    grid-template-columns: 1fr;
+  }
+
+  .variation-arrow {
+    transform: rotate(90deg);
+  }
+
+  .role-grid,
+  .motif-lab,
+  .variation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .motif-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .seed-row {
+    grid-template-columns: 1fr;
+  }
+
+  .hint-notes,
+  .hint-actions {
+    justify-content: flex-start;
+  }
+
+  .note-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .melody-board {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .meter {
+    width: 100%;
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-shell {
+    width: min(100% - 18px, 1180px);
+    padding-top: 14px;
+  }
+
+  .panel {
+    padding: 16px;
+  }
+
+  .note-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .melody-board {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    padding: 6px;
+  }
+
+  .note-card {
+    min-height: 76px;
+    padding: 7px 5px 6px;
+  }
+
+  .jeonggan-meta {
+    padding-right: 18px;
+  }
+
+  .jeonggan-index {
+    font-size: 0.68rem;
+  }
+
+  .jeonggan-chord {
+    font-size: 0.9rem;
+  }
+
+  .money-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .style-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .money-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .motif-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .role-grid,
+  .motif-lab,
+  .variation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .playback-panel {
+    width: 100%;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .playback-actions button,
+  .edit-actions button,
+  .playback-repeat {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    min-height: 50px;
+    padding: 10px 8px;
+    font-size: 0.96rem;
+  }
+
+  #randomBtn {
+    flex-basis: 100%;
+  }
+
+  .seed-shapes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  h1 {
+    font-size: 2.2rem;
+  }
+}
+
+</style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>내 노래는 내가 만든다</h1>
+          <p class="hero-subtitle">음악 씨앗 만들기</p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel composer-panel" aria-label="멜로디 만들기">
+          <div class="panel-heading composer-heading">
+            <div class="controls-inline">
+              <input id="passingMode" type="checkbox" hidden>
+              <span class="meter-badge" aria-label="기본 박자">4/4박자</span>
+              <label class="switch">
+                <input id="padMode" type="checkbox" checked>
+                <span>배경 코드</span>
+              </label>
+              <label class="select-label">
+                길이
+                <select id="targetBeats">
+                  <option value="8">2마디 (8박)</option>
+                  <option value="16">4마디 (16박)</option>
+                  <option value="24">6마디 (24박)</option>
+                  <option value="32">8마디 (32박)</option>
+                  <option value="48">12마디 (48박)</option>
+                  <option value="64">16마디 (64박)</option>
+                  <option value="96">24마디 (96박)</option>
+                  <option value="128">32마디 (128박)</option>
+                </select>
+              </label>
+              <label class="select-label">
+                음색
+                <select id="padSound">
+                  <option value="organ">오르간</option>
+                  <option value="strings">스트링</option>
+                </select>
+              </label>
+            </div>
+          </div>
+
+          <div class="style-panel" aria-labelledby="styleTitle">
+            <div class="style-heading">
+              <span id="styleTitle">장르·분위기</span>
+              <small id="styleHint">8가지 스타일 중 하나를 고르면 음악 씨앗의 리듬과 움직임이 달라집니다.</small>
+            </div>
+            <div id="styleButtons" class="style-buttons" role="group" aria-label="스타일 선택">
+              <button class="style-btn active" data-style="bright" type="button">밝은 동요</button>
+              <button class="style-btn" data-style="play" type="button">놀이·행진</button>
+              <button class="style-btn" data-style="lullaby" type="button">자장가</button>
+              <button class="style-btn" data-style="folk" type="button">민요</button>
+              <button class="style-btn" data-style="pop" type="button">팝 씨앗</button>
+              <button class="style-btn" data-style="jazz" type="button">재즈 스윙</button>
+              <button class="style-btn" data-style="dance" type="button">신나는 댄스</button>
+              <button class="style-btn" data-style="calm" type="button">차분한</button>
+            </div>
+          </div>
+
+          <div class="money-panel" aria-labelledby="moneyTitle">
+            <div class="money-heading">
+              <span id="moneyTitle">화음진행</span>
+              <small>진행을 고르면 배경 화음과 어울리는 느낌이 바뀝니다.</small>
+            </div>
+            <div id="moneyButtons" class="money-buttons" role="group" aria-label="화음진행 선택">
+              <button class="money-btn active" data-progression="pop" type="button">기본 팝</button>
+              <button class="money-btn" data-progression="brightLoop" type="button">밝은 순환</button>
+              <button class="money-btn" data-progression="emotional" type="button">감성 시작</button>
+              <button class="money-btn" data-progression="lift" type="button">올라가는 느낌</button>
+            </div>
+            <div id="moneyRow" class="money-row" aria-label="선택한 화음진행"></div>
+
+          </div>
+
+          <div class="motif-panel" aria-labelledby="motifTitle">
+            <h2 id="motifTitle" class="motif-section-title">음악 씨앗</h2>
+            <div class="motif-copy">
+              <strong id="motifMain">짧은 음악 씨앗을 먼저 만듭니다.</strong>
+              <small id="motifGuide">건반으로 음을 고르고 씨앗을 심으면 멜로디가 자랍니다.</small>
+            </div>
+            <div class="motif-tools">
+              <div class="seed-row">
+                <label for="seedLength">
+                  구성음
+                  <select id="seedLength">
+                    <option value="2">2개</option>
+                    <option value="3" selected>3개</option>
+                    <option value="4">4개</option>
+                    <option value="5">5개</option>
+                    <option value="6">6개</option>
+                    <option value="7">7개</option>
+                    <option value="8">8개</option>
+                    <option value="9">9개</option>
+                    <option value="10">10개</option>
+                    <option value="11">11개</option>
+                    <option value="12">12개</option>
+                  </select>
+                </label>
+              </div>
+              <div class="motif-note-picker">
+                <div class="note-picker-head">
+                  <span>도·레·미·파·솔·라·시·도 건반</span>
+                  <small>건반을 눌러 음악 씨앗에 넣을 음을 고릅니다.</small>
+                </div>
+                <div id="noteButtons" class="note-grid scale-keyboard" role="group" aria-label="도레미파솔라시도 건반"></div>
+                <div class="seed-edit-actions" aria-label="구성음 편집">
+                  <button id="seedBackspaceBtn" type="button">마지막 음 지우기</button>
+                  <button id="seedClearBtn" type="button">구성음 비우기</button>
+                </div>
+              </div>
+              <div id="seedShapes" class="seed-shapes" role="group" aria-label="음악 씨앗 모양 8가지 선택">
+                <button class="active" data-seed-shape="rise" type="button">올라감</button>
+                <button data-seed-shape="fall" type="button">내려감</button>
+                <button data-seed-shape="wave" type="button">물결</button>
+                <button data-seed-shape="repeat" type="button">반복</button>
+                <button data-seed-shape="leap" type="button">도약</button>
+                <button data-seed-shape="return" type="button">되돌림</button>
+                <button data-seed-shape="echo" type="button">메아리</button>
+                <button data-seed-shape="finish" type="button">마침</button>
+              </div>
+              <div id="motifPreview" class="motif-preview" aria-label="현재 음악 씨앗"></div>
+              <div class="motif-actions">
+                <button id="motifSeedBtn" class="primary-lite" type="button">씨앗 심기</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="playback-panel" aria-labelledby="playbackTitle">
+            <div class="playback-heading">
+              <span id="playbackTitle">재생</span>
+            </div>
+            <div class="playback-actions">
+              <button id="playBtn" class="primary" type="button" aria-label="재생">▶ 재생</button>
+              <button id="stopBtn" type="button" aria-label="정지">■ 정지</button>
+              <label class="switch playback-repeat">
+                <input id="repeatMode" type="checkbox">
+                <span>반복 재생</span>
+              </label>
+            </div>
+            <div class="edit-actions" aria-label="편집 도구">
+              <button id="randomBtn" type="button">씨앗 랜덤 생성</button>
+              <button id="undoBtn" type="button">↶ 되돌리기</button>
+              <button id="clearBtn" class="danger-lite" type="button">전체 지우기</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel board-panel" aria-labelledby="boardTitle">
+          <div class="panel-heading compact">
+            <div>
+              <h2 id="boardTitle">내 멜로디 정간보</h2>
+              <p class="board-meter-line">
+                <span class="meter-badge compact">4/4박자</span>
+                <span><span id="beatCount">0</span> / <span id="beatTargetLabel">8</span>박</span>
+                <span id="targetMeasureLabel">2마디</span>
+              </p>
+            </div>
+            <div class="meter" aria-hidden="true">
+              <div id="meterFill"></div>
+            </div>
+          </div>
+          <ol id="melodyBoard" class="melody-board" aria-live="polite"></ol>
+          <div class="score-box">
+            <div class="score-heading">
+              <label id="scoreTitle">악보 변환</label>
+              <small>정간보 멜로디를 오선 악보로 봅니다.</small>
+            </div>
+            <div id="scorePreview" class="score-preview" aria-labelledby="scoreTitle"></div>
+            <textarea id="melodyText" class="hidden-textarea" readonly tabindex="-1" aria-hidden="true"></textarea>
+          </div>
+        </section>
+
+        <section class="panel group-panel" aria-labelledby="variationTitle">
+          <h2 id="variationTitle">멜로디 변화 만들기</h2>
+          <p class="group-intro">위쪽 음악 씨앗을 원 모티브로 삼아 4가지 변형안을 듣고, 마음에 드는 변형을 골라 멜로디에 심습니다.</p>
+
+          <div class="variation-lab" aria-label="원 모티브 변형">
+            <div id="variationSourcePreview" class="variation-source"></div>
+            <div id="variationGrid" class="variation-grid"></div>
+            <div class="variation-reflection" aria-label="선택 멜로디 변화 의견 반영">
+              <input id="selectedVariationIndex" type="hidden" value="">
+              <div id="selectedVariationSummary" class="variation-reflection-head">
+                <strong>선택된 멜로디 변화 없음</strong>
+                <small>멜로디 변화를 하나 선택한 뒤 의견을 적고 반영해 보세요.</small>
+              </div>
+              <label class="group-field" for="variationOpinion">
+                <span>선택 후 의견</span>
+                <textarea id="variationOpinion" placeholder="예: 마지막은 도로 끝내자. 두 번째 음을 길게 하자. 너무 뛰면 가까운 음으로 바꾸자."></textarea>
+              </label>
+              <div class="variation-reflection-actions">
+                <button id="previewSelectedVariationBtn" type="button">선택 변화 듣기</button>
+                <button id="previewReflectedVariationBtn" type="button">의견 반영 듣기</button>
+                <button id="applyReflectedVariationBtn" class="primary-lite" type="button">의견 반영해 심기</button>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <aside class="panel guide-panel" aria-labelledby="guideTitle">
+          <h2 id="guideTitle">창작 도움말</h2>
+          <div class="scale-line" aria-label="도레미파솔라시도 음계">
+            <span>도</span>
+            <span>레</span>
+            <span>미</span>
+            <span>파</span>
+            <span>솔</span>
+            <span>라</span>
+            <span>시</span>
+            <span>도</span>
+          </div>
+          <div class="guide-grid">
+            <p><strong>반복</strong> 씨앗을 한 번 더 쓰면 기억에 남아요.</p>
+            <p><strong>변형</strong> 마지막 음만 바꿔도 새 느낌이 납니다.</p>
+            <p><strong>거꾸로</strong> 씨앗의 음 순서를 뒤집어 보세요.</p>
+            <p><strong>높은 점</strong> 중간에 라로 포인트를 만드세요.</p>
+            <p><strong>쉼표</strong> 너무 꽉 차면 한 칸 쉬어 숨을 주세요.</p>
+            <p><strong>마무리</strong> 마지막은 도로 끝내면 안정적입니다.</p>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+const NOTES = [
+  { id: "C4", solfege: "도", pitch: "C4", freq: 261.63, type: "core", degree: 1 },
+  { id: "D4", solfege: "레", pitch: "D4", freq: 293.66, type: "core", degree: 2 },
+  { id: "E4", solfege: "미", pitch: "E4", freq: 329.63, type: "core", degree: 3 },
+  { id: "F4", solfege: "파", pitch: "F4", freq: 349.23, type: "passing", degree: 4 },
+  { id: "G4", solfege: "솔", pitch: "G4", freq: 392.0, type: "core", degree: 5 },
+  { id: "A4", solfege: "라", pitch: "A4", freq: 440.0, type: "core", degree: 6 },
+  { id: "B4", solfege: "시", pitch: "B4", freq: 493.88, type: "passing", degree: 7 },
+  { id: "C5", solfege: "높은 도", pitch: "C5", freq: 523.25, type: "core", degree: 8 },
+  { id: "REST", solfege: "쉼", pitch: "rest", freq: null, type: "rest", degree: null },
+];
+
+const NOTE_BY_ID = Object.fromEntries(NOTES.map((note) => [note.id, note]));
+const PENTATONIC_KEY_IDS = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"];
+const MAX_SEED_NOTES = 12;
+const SEED_SHAPE_IDS = ["rise", "fall", "wave", "repeat", "leap", "return", "echo", "finish"];
+const SEED_SHAPE_LABELS = {
+  rise: "올라가는",
+  fall: "내려가는",
+  wave: "물결",
+  repeat: "반복",
+  leap: "도약",
+  return: "되돌림",
+  echo: "메아리",
+  finish: "마침",
+};
+const CORE_IDS = ["C4", "D4", "E4", "G4", "A4", "C5"];
+const CHORD_LIBRARY = {
+  C: { name: "C", safe: ["C4", "E4", "G4", "C5"] },
+  G: { name: "G", safe: ["G4", "D4"] },
+  Am: { name: "Am", safe: ["A4", "C4", "E4", "C5"] },
+  F: { name: "F", safe: ["A4", "C4", "C5"] },
+};
+const CHORD_PROGRESSIONS = {
+  pop: {
+    label: "기본 팝",
+    chords: ["C", "G", "Am", "F"],
+  },
+  brightLoop: {
+    label: "밝은 순환",
+    chords: ["C", "Am", "F", "G"],
+  },
+  emotional: {
+    label: "감성 시작",
+    chords: ["Am", "F", "C", "G"],
+  },
+  lift: {
+    label: "올라가는 느낌",
+    chords: ["F", "G", "C", "Am"],
+  },
+};
+const CHORD_PAD_NOTES = {
+  C: [130.81, 164.81, 196.0],
+  G: [196.0, 246.94, 293.66],
+  Am: [220.0, 261.63, 329.63],
+  F: [174.61, 220.0, 261.63],
+};
+const DEFAULT_NOTE_DURATION = 1;
+const BEATS_PER_MEASURE = 4;
+const TIME_SIGNATURE_LABEL = "4/4";
+const RHYTHM_PATTERNS = {
+  2: [
+    [1, 1],
+    [2],
+    [0.5, 0.5, 1],
+    [1, 0.5, 0.5],
+  ],
+  4: [
+    [1, 1, 1, 1],
+    [2, 1, 1],
+    [1, 2, 1],
+    [1, 1, 2],
+    [0.5, 0.5, 1, 1, 1],
+    [1, 0.5, 0.5, 1, 1],
+    [1, 1, 0.5, 0.5, 1],
+    [1, 1, 1, 0.5, 0.5],
+    [0.5, 0.5, 0.5, 0.5, 1, 1],
+    [2, 0.5, 0.5, 1],
+    [0.5, 0.5, 2, 1],
+  ],
+};
+const HOOK_MOTIFS = [
+  ["C4", "E4", "G4"],
+  ["E4", "G4", "A4"],
+  ["G4", "E4", "D4"],
+  ["A4", "G4", "E4"],
+  ["C4", "D4", "E4"],
+  ["E4", "F4", "G4"],
+  ["G4", "F4", "E4"],
+  ["A4", "B4", "C5"],
+  ["C5", "B4", "A4"],
+];
+const INSPIRATION_PROFILES = {
+  bright: {
+    label: "밝은 동요풍",
+    motifs: [["C4", "D4", "E4"], ["C4", "E4", "G4"], ["E4", "G4", "A4"], ["G4", "E4", "D4"]],
+    starts: ["C4", "E4", "G4"],
+    highPoints: ["A4", "C5"],
+    rhythmLikes: ["1-1", "0.5-0.5-1", "1-0.5-0.5", "1-1-1-1", "0.5-0.5-1-1-1"],
+  },
+  play: {
+    label: "놀이·행진풍",
+    motifs: [["C4", "E4", "G4"], ["G4", "G4", "A4"], ["E4", "G4", "E4"], ["G4", "A4", "G4"]],
+    starts: ["C4", "G4", "E4"],
+    highPoints: ["A4", "C5"],
+    rhythmLikes: ["1-1", "1-1-1-1", "0.5-0.5-1", "1-0.5-0.5", "0.5-0.5-0.5-0.5-1-1"],
+  },
+  lullaby: {
+    label: "자장가풍",
+    motifs: [["E4", "D4", "C4"], ["G4", "E4", "D4"], ["A4", "G4", "E4"], ["E4", "G4", "E4"]],
+    starts: ["E4", "G4", "C4"],
+    highPoints: ["A4"],
+    rhythmLikes: ["2", "1-1", "2-1-1", "1-2-1", "1-1-2"],
+  },
+  folk: {
+    label: "민요 느낌",
+    motifs: [["A4", "G4", "E4"], ["E4", "D4", "C4"], ["C4", "D4", "E4"], ["G4", "A4", "G4"]],
+    starts: ["A4", "G4", "C4"],
+    highPoints: ["A4"],
+    rhythmLikes: ["1-1", "2", "1-1-2", "2-1-1", "1-2-1"],
+  },
+  pop: {
+    label: "팝 씨앗풍",
+    motifs: [["E4", "G4", "A4"], ["A4", "G4", "E4"], ["G4", "A4", "C5"], ["E4", "G4", "E4"]],
+    starts: ["E4", "G4", "A4"],
+    highPoints: ["C5", "A4"],
+    rhythmLikes: ["0.5-0.5-1", "1-0.5-0.5", "1-1-0.5-0.5", "0.5-0.5-2-1", "2-0.5-0.5-1"],
+  },
+  jazz: {
+    label: "재즈 스윙풍",
+    motifs: [["E4", "G4", "F4", "E4"], ["A4", "C5", "B4", "A4"], ["D4", "F4", "G4", "E4"], ["G4", "A4", "C5", "A4"]],
+    starts: ["E4", "G4", "A4", "D4"],
+    highPoints: ["C5", "B4", "A4"],
+    rhythmLikes: ["0.5-0.5-1", "1-0.5-0.5", "0.5-0.5-2-1", "1-1-0.5-0.5", "2-0.5-0.5-1"],
+  },
+  dance: {
+    label: "신나는 댄스풍",
+    motifs: [["G4", "A4", "G4"], ["E4", "G4", "A4"], ["A4", "A4", "G4"], ["G4", "E4", "G4"]],
+    starts: ["G4", "A4", "E4"],
+    highPoints: ["C5", "A4"],
+    rhythmLikes: ["0.5-0.5-1", "1-0.5-0.5", "0.5-0.5-0.5-0.5-1-1", "2-0.5-0.5-1", "0.5-0.5-2-1"],
+  },
+  calm: {
+    label: "차분한 느낌",
+    motifs: [["G4", "E4", "D4"], ["E4", "D4", "C4"], ["A4", "G4", "E4"], ["C4", "E4", "D4"]],
+    starts: ["C4", "E4", "G4"],
+    highPoints: ["A4"],
+    rhythmLikes: ["2", "1-1", "2-1-1", "1-2-1", "1-1-2"],
+  },
+};
+const MAX_RANDOM_LEAP = 3;
+
+const state = {
+  melody: [],
+  selectedNoteIds: [],
+  selectedCardIndex: null,
+  selectedStyle: "bright",
+  selectedProgression: "pop",
+  selectedSeedShape: "rise",
+  hintStep: 0,
+  timers: [],
+  audioNodes: [],
+  audioContext: null,
+};
+
+const PITCH_DRAG_STEP_PX = 30;
+let pitchDragState = null;
+let suppressMelodyCardClickUntil = 0;
+
+const noteButtons = document.querySelector("#noteButtons");
+const passingMode = document.querySelector("#passingMode");
+const padMode = document.querySelector("#padMode");
+const repeatMode = document.querySelector("#repeatMode");
+const boardTitle = document.querySelector("#boardTitle");
+const melodyBoard = document.querySelector("#melodyBoard");
+const beatCount = document.querySelector("#beatCount");
+const beatTargetLabel = document.querySelector("#beatTargetLabel");
+const targetMeasureLabel = document.querySelector("#targetMeasureLabel");
+const meterFill = document.querySelector("#meterFill");
+const melodyText = document.querySelector("#melodyText");
+const scorePreview = document.querySelector("#scorePreview");
+const targetBeats = document.querySelector("#targetBeats");
+const padSound = document.querySelector("#padSound");
+const styleButtons = document.querySelector("#styleButtons");
+const moneyButtons = document.querySelector("#moneyButtons");
+const moneyRow = document.querySelector("#moneyRow");
+const hintMain = document.querySelector("#hintMain");
+const hintDetail = document.querySelector("#hintDetail");
+const hintNotes = document.querySelector("#hintNotes");
+const hintInsertBtn = document.querySelector("#hintInsertBtn");
+const hintRefreshBtn = document.querySelector("#hintRefreshBtn");
+const motifMain = document.querySelector("#motifMain");
+const motifGuide = document.querySelector("#motifGuide");
+const motifPreview = document.querySelector("#motifPreview");
+const motifSeedBtn = document.querySelector("#motifSeedBtn");
+const seedLength = document.querySelector("#seedLength");
+const seedShapes = document.querySelector("#seedShapes");
+const seedBackspaceBtn = document.querySelector("#seedBackspaceBtn");
+const seedClearBtn = document.querySelector("#seedClearBtn");
+const groupNameInput = document.querySelector("#groupName");
+const groupMembersInput = document.querySelector("#groupMembers");
+const groupMotifInputs = Array.from(document.querySelectorAll("[data-group-motif]"));
+const groupDecisionInput = document.querySelector("#groupDecision");
+const groupReasonInput = document.querySelector("#groupReason");
+const captureGroupMotifBtn = document.querySelector("#captureGroupMotifBtn");
+const useGroupMotifBtn = document.querySelector("#useGroupMotifBtn");
+const variationSourcePreview = document.querySelector("#variationSourcePreview");
+const variationGrid = document.querySelector("#variationGrid");
+const selectedVariationIndexInput = document.querySelector("#selectedVariationIndex");
+const selectedVariationSummary = document.querySelector("#selectedVariationSummary");
+const variationOpinionInput = document.querySelector("#variationOpinion");
+const previewSelectedVariationBtn = document.querySelector("#previewSelectedVariationBtn");
+const previewReflectedVariationBtn = document.querySelector("#previewReflectedVariationBtn");
+const applyReflectedVariationBtn = document.querySelector("#applyReflectedVariationBtn");
+
+function init() {
+  bindEvents();
+  loadSavedMelody();
+  renderNoteButtons();
+  renderStyleButtons();
+  renderMoneyTools();
+  renderSeedShapeButtons();
+  render();
+}
+
+function bindEvents() {
+  passingMode.addEventListener("change", () => {
+    state.selectedNoteIds = state.selectedNoteIds.filter((noteId) => NOTE_BY_ID[noteId]?.type !== "passing" || passingMode.checked);
+    renderNoteButtons();
+    renderMotifWorkshop();
+    saveMelody();
+  });
+  padMode.addEventListener("change", saveMelody);
+  repeatMode.addEventListener("change", saveMelody);
+  padSound.addEventListener("change", saveMelody);
+  targetBeats.addEventListener("change", () => {
+    state.selectedCardIndex = null;
+    saveMelody();
+    render();
+  });
+  styleButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-style]");
+    if (!button) return;
+    state.selectedStyle = button.dataset.style;
+    renderStyleButtons();
+    saveMelody();
+    showToast(`${getInspirationProfile().label} 느낌으로 음악 씨앗을 만들 수 있어요.`);
+  });
+  moneyButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-progression]");
+    if (!button) return;
+    state.selectedProgression = button.dataset.progression;
+    state.hintStep = 0;
+    renderMoneyTools();
+    saveMelody();
+    render();
+    showToast(`${getMoneyProgression().label}: ${moneyChordText()} 진행으로 바꿨어요.`);
+  });
+  if (hintInsertBtn) hintInsertBtn.addEventListener("click", () => insertHintNote());
+  if (hintRefreshBtn) hintRefreshBtn.addEventListener("click", () => {
+    state.hintStep += 1;
+    renderHint();
+  });
+  if (hintNotes) hintNotes.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-hint-note]");
+    if (!button) return;
+    insertHintNote(button.dataset.hintNote);
+  });
+  seedLength.addEventListener("change", () => {
+    state.selectedNoteIds = state.selectedNoteIds.slice(0, selectedSeedTargetLength());
+    saveMelody();
+    renderNoteButtons();
+    renderMotifWorkshop();
+    renderGroupVariations();
+  });
+  seedShapes.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-seed-shape]");
+    if (!button) return;
+    state.selectedSeedShape = button.dataset.seedShape;
+    renderSeedShapeButtons();
+    saveMelody();
+    renderMotifWorkshop();
+    renderGroupVariations();
+    showToast(`${seedShapeLabel()} 씨앗으로 시작해 볼게요.`);
+  });
+  motifSeedBtn.addEventListener("click", seedMotif);
+  seedBackspaceBtn.addEventListener("click", removeLastSeedNote);
+  seedClearBtn.addEventListener("click", clearSeedNotes);
+  [groupNameInput, groupMembersInput, groupDecisionInput, groupReasonInput, variationOpinionInput, ...groupMotifInputs].filter(Boolean).forEach((field) => {
+    field.addEventListener("input", () => {
+      melodyText.value = melodyToText();
+      saveMelody();
+      renderGroupVariations();
+    });
+  });
+  if (captureGroupMotifBtn) captureGroupMotifBtn.addEventListener("click", captureGroupMotif);
+  if (useGroupMotifBtn) useGroupMotifBtn.addEventListener("click", useGroupMotif);
+  variationGrid.addEventListener("click", (event) => {
+    const previewButton = event.target.closest("[data-variation-preview-index]");
+    if (previewButton) {
+      previewMotifVariation(Number(previewButton.dataset.variationPreviewIndex));
+      return;
+    }
+    const applyButton = event.target.closest("[data-variation-index]");
+    if (!applyButton) return;
+    selectMotifVariation(Number(applyButton.dataset.variationIndex));
+  });
+  previewSelectedVariationBtn.addEventListener("click", previewSelectedVariation);
+  previewReflectedVariationBtn.addEventListener("click", previewReflectedVariation);
+  applyReflectedVariationBtn.addEventListener("click", applyReflectedVariation);
+  document.querySelector("#playBtn").addEventListener("click", playMelody);
+  document.querySelector("#stopBtn").addEventListener("click", stopMelody);
+  document.querySelector("#randomBtn").addEventListener("click", generateRandomMelody);
+  document.querySelector("#undoBtn").addEventListener("click", undoNote);
+  document.querySelector("#clearBtn").addEventListener("click", clearMelody);
+  window.addEventListener("pointermove", handlePitchDragMove, { passive: false });
+  window.addEventListener("pointerup", finishPitchDrag);
+  window.addEventListener("pointercancel", cancelPitchDrag);
+
+  window.addEventListener("keydown", (event) => {
+    if (event.target.matches("textarea, input, select, button")) return;
+    const index = Number(event.key) - 1;
+    const shortcuts = PENTATONIC_KEY_IDS;
+    if (index >= 0 && index < shortcuts.length) {
+      const note = NOTE_BY_ID[shortcuts[index]];
+      if (note) addOrReplaceNote(note);
+    }
+    if (event.key === "Backspace") undoNote();
+    if (event.code === "Space") {
+      event.preventDefault();
+      playMelody();
+    }
+  });
+}
+
+function isValidSeedLength(value) {
+  const number = Number(value);
+  return Number.isInteger(number) && number >= 2 && number <= MAX_SEED_NOTES;
+}
+
+function isValidSeedShape(value) {
+  return SEED_SHAPE_IDS.includes(value);
+}
+
+function renderStyleButtons() {
+  styleButtons.querySelectorAll("[data-style]").forEach((button) => {
+    const active = button.dataset.style === state.selectedStyle;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+}
+
+function renderMoneyTools() {
+  renderMoneyButtons();
+  renderMoneyChords();
+}
+
+function renderMoneyButtons() {
+  moneyButtons.querySelectorAll("[data-progression]").forEach((button) => {
+    const active = button.dataset.progression === state.selectedProgression;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+}
+
+function renderSeedShapeButtons() {
+  seedShapes.querySelectorAll("[data-seed-shape]").forEach((button) => {
+    const active = button.dataset.seedShape === state.selectedSeedShape;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
+}
+
+function renderMoneyChords() {
+  moneyRow.innerHTML = "";
+  getMoneyChords().forEach((chord) => {
+    const span = document.createElement("span");
+    span.textContent = chord.name;
+    moneyRow.appendChild(span);
+  });
+}
+
+function renderNoteButtons() {
+  noteButtons.innerHTML = "";
+  PENTATONIC_KEY_IDS.forEach((noteId) => {
+    const note = NOTE_BY_ID[noteId];
+    if (!note) return;
+    const button = document.createElement("button");
+    button.className = "note-btn keyboard-key";
+    button.type = "button";
+    button.dataset.noteId = note.id;
+    const keyLabel = keyboardKeyLabel(note);
+    const selectedCount = state.selectedNoteIds.filter((id) => id === note.id).length;
+    const selected = selectedCount > 0;
+    button.classList.toggle("selected", selected);
+    button.setAttribute("aria-pressed", String(selected));
+    button.innerHTML = `
+      <strong>${keyLabel}</strong>
+      <small>${selectedCount > 0 ? `${selectedCount}번 선택` : keyboardKeyDetail(note)}</small>
+    `;
+    button.addEventListener("click", () => {
+      if (state.selectedCardIndex !== null) {
+        addOrReplaceNote(note);
+        return;
+      }
+      addSeedSourceNote(note);
+    });
+    noteButtons.appendChild(button);
+  });
+}
+
+function keyboardKeyLabel(note) {
+  return note.id === "C5" ? "도" : note.solfege;
+}
+
+function keyboardKeyDetail(note) {
+  return note.id === "C5" ? "높은 도" : note.pitch;
+}
+
+function addSeedSourceNote(note) {
+  if (note.type === "rest") return;
+  const targetLength = selectedSeedTargetLength();
+  if (state.selectedNoteIds.length >= targetLength) {
+    showToast(`구성음은 ${targetLength}개까지 고를 수 있어요.`);
+    return;
+  }
+  state.selectedNoteIds.push(note.id);
+  saveMelody();
+  renderNoteButtons();
+  renderMotifWorkshop();
+  renderGroupVariations();
+  previewNote(note, 0.45);
+}
+
+function removeLastSeedNote() {
+  if (state.selectedNoteIds.length === 0) {
+    showToast("지울 구성음이 아직 없어요.");
+    return;
+  }
+  state.selectedNoteIds.pop();
+  saveMelody();
+  renderNoteButtons();
+  renderMotifWorkshop();
+  renderGroupVariations();
+}
+
+function clearSeedNotes() {
+  if (state.selectedNoteIds.length === 0) return;
+  state.selectedNoteIds = [];
+  saveMelody();
+  renderNoteButtons();
+  renderMotifWorkshop();
+  renderGroupVariations();
+}
+
+function addOrReplaceNote(note, durationOverride = null) {
+  if (state.selectedCardIndex !== null) {
+    const currentDuration = state.melody[state.selectedCardIndex]?.duration || DEFAULT_NOTE_DURATION;
+    state.melody[state.selectedCardIndex] = toMelodyNote(note, currentDuration);
+    state.selectedCardIndex = null;
+    saveMelody();
+    render();
+    previewNote(note, currentDuration);
+    return;
+  }
+
+  const target = Number(targetBeats.value);
+  const currentBeats = totalBeats();
+  const duration = durationOverride || DEFAULT_NOTE_DURATION;
+  if (currentBeats + duration > target + 2) {
+    showToast(`목표보다 너무 길어요. 현재 ${formatBeat(currentBeats)}박이에요.`);
+    return;
+  }
+
+  state.melody.push(toMelodyNote(note, duration));
+  saveMelody();
+  render();
+  previewNote(note, duration);
+}
+
+function toMelodyNote(note, duration) {
+  return { ...note, duration: normalizeDuration(duration) };
+}
+
+function normalizeDuration(duration, fallback = DEFAULT_NOTE_DURATION) {
+  const value = Number(duration);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+}
+
+function undoNote() {
+  if (state.selectedCardIndex !== null) {
+    state.melody.splice(state.selectedCardIndex, 1);
+    state.selectedCardIndex = null;
+  } else {
+    state.melody.pop();
+  }
+  saveMelody();
+  render();
+}
+
+function clearMelody() {
+  stopMelody();
+  state.melody = [];
+  state.selectedCardIndex = null;
+  saveMelody();
+  render();
+}
+
+function totalBeats() {
+  return state.melody.reduce((sum, note) => sum + note.duration, 0);
+}
+
+function durationGridUnits(duration) {
+  return Math.max(1, Math.round(duration * 2));
+}
+
+function durationClass(duration) {
+  if (duration === 0.5) return "duration-half";
+  if (duration === 2) return "duration-long";
+  return "duration-one";
+}
+
+function isMeasureStart(beat) {
+  return Math.abs(beat % BEATS_PER_MEASURE) < 0.001;
+}
+
+function measureCountText(beats) {
+  return `${formatBeat(Number(beats) / BEATS_PER_MEASURE)}마디`;
+}
+
+function targetLengthText(beats) {
+  return `${measureCountText(beats)} (${beats}박)`;
+}
+
+function render() {
+  const total = totalBeats();
+  const target = Number(targetBeats.value);
+
+  renderMoneyChords();
+  boardTitle.textContent = "내 멜로디 정간보";
+  beatCount.textContent = formatBeat(total);
+  beatTargetLabel.textContent = target;
+  targetMeasureLabel.textContent = measureCountText(target);
+  meterFill.style.width = `${Math.min((total / target) * 100, 100)}%`;
+  melodyBoard.innerHTML = "";
+  const hookIndexes = findRepeatedMotifIndexes(state.melody);
+  let cursor = 0;
+  state.melody.forEach((note, index) => {
+    const li = document.createElement("li");
+    li.className = `note-card ${note.type} ${durationClass(note.duration)}`;
+    li.style.gridColumn = `span ${durationGridUnits(note.duration)}`;
+    if (state.selectedCardIndex === index) li.classList.add("selected");
+    if (hookIndexes.has(index)) li.classList.add("hook");
+    if (isMeasureStart(cursor)) li.classList.add("measure-start");
+    li.dataset.index = index;
+    li.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 드래그하면 음높이를 바꿀 수 있습니다.`);
+    li.innerHTML = `
+      <button class="remove-card" type="button" aria-label="${index + 1}번째 카드 삭제">×</button>
+      ${hookIndexes.has(index) ? '<span class="hook-badge">모티브</span>' : ""}
+      <div class="jeonggan-meta"><span class="jeonggan-index">${index + 1}</span><span class="jeonggan-chord">${chordForBeat(cursor).name}</span></div>
+      <strong class="jeonggan-note">${note.solfege}</strong>
+      <small class="jeonggan-pitch">${durationSymbol(note.duration)} ${note.pitch === "rest" ? "쉼표" : note.pitch}</small>
+    `;
+    li.addEventListener("pointerdown", (event) => startPitchDrag(event, li, index));
+    li.addEventListener("click", () => {
+      if (Date.now() < suppressMelodyCardClickUntil) return;
+      state.selectedCardIndex = state.selectedCardIndex === index ? null : index;
+      render();
+    });
+    li.querySelector(".remove-card").addEventListener("pointerdown", (event) => event.stopPropagation());
+    li.querySelector(".remove-card").addEventListener("click", (event) => {
+      event.stopPropagation();
+      state.melody.splice(index, 1);
+      state.selectedCardIndex = null;
+      saveMelody();
+      render();
+    });
+    melodyBoard.appendChild(li);
+    cursor += note.duration;
+  });
+
+  melodyText.value = melodyToText();
+  renderScorePreview();
+  renderGroupVariations();
+  renderHint();
+  renderMotifWorkshop();
+}
+
+function startPitchDrag(event, card, index) {
+  if (event.button !== undefined && event.button !== 0) return;
+  if (event.target.closest(".remove-card")) return;
+  const note = state.melody[index];
+  const scaleIndex = PENTATONIC_KEY_IDS.indexOf(note?.id);
+  if (!note || note.type === "rest" || scaleIndex < 0) return;
+  pitchDragState = {
+    pointerId: event.pointerId,
+    index,
+    card,
+    startY: event.clientY,
+    originalScaleIndex: scaleIndex,
+    currentScaleIndex: scaleIndex,
+    changed: false,
+  };
+  try {
+    card.setPointerCapture(event.pointerId);
+  } catch {
+    // 일부 구형 브라우저에서는 포인터 캡처 없이도 window 이벤트로 처리됩니다.
+  }
+}
+
+function handlePitchDragMove(event) {
+  const drag = pitchDragState;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  const rawStep = (drag.startY - event.clientY) / PITCH_DRAG_STEP_PX;
+  const step = rawStep < 0 ? Math.ceil(rawStep) : Math.floor(rawStep);
+  const nextScaleIndex = clampNumber(drag.originalScaleIndex + step, 0, PENTATONIC_KEY_IDS.length - 1);
+  if (nextScaleIndex === drag.currentScaleIndex) return;
+  event.preventDefault();
+  const nextNoteId = PENTATONIC_KEY_IDS[nextScaleIndex];
+  updateMelodyCardPitch(drag.index, nextNoteId, drag.card);
+  drag.currentScaleIndex = nextScaleIndex;
+  drag.changed = true;
+  state.selectedCardIndex = drag.index;
+  drag.card.classList.add("selected", "dragging");
+}
+
+function finishPitchDrag(event) {
+  const drag = pitchDragState;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  completePitchDrag(true);
+}
+
+function cancelPitchDrag(event) {
+  const drag = pitchDragState;
+  if (!drag || event.pointerId !== drag.pointerId) return;
+  completePitchDrag(true);
+}
+
+function completePitchDrag(keepChanges) {
+  const drag = pitchDragState;
+  if (!drag) return;
+  try {
+    drag.card.releasePointerCapture(drag.pointerId);
+  } catch {
+    // 포인터 캡처가 없는 환경에서는 무시합니다.
+  }
+  drag.card.classList.remove("dragging");
+  pitchDragState = null;
+  if (!drag.changed) return;
+  suppressMelodyCardClickUntil = Date.now() + 350;
+  if (!keepChanges) {
+    updateMelodyCardPitch(drag.index, PENTATONIC_KEY_IDS[drag.originalScaleIndex], drag.card, false);
+  }
+  state.selectedCardIndex = drag.index;
+  saveMelody();
+  const changedNote = state.melody[drag.index];
+  render();
+  if (changedNote) showToast(`${changedNote.solfege}로 바꿨어요.`);
+}
+
+function updateMelodyCardPitch(index, noteId, card, shouldPreview = true) {
+  const current = state.melody[index];
+  const nextNote = NOTE_BY_ID[noteId];
+  if (!current || !nextNote || current.id === noteId) return;
+  state.melody[index] = toMelodyNote(nextNote, current.duration);
+  updateRenderedMelodyCard(card, index, state.melody[index]);
+  melodyText.value = melodyToText();
+  if (shouldPreview) previewNote(nextNote, Math.min(normalizeDuration(current.duration), 0.6));
+}
+
+function updateRenderedMelodyCard(card, index, note) {
+  if (!card || !note) return;
+  card.classList.remove("core", "passing", "rest");
+  card.classList.add(note.type);
+  card.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 드래그하면 음높이를 바꿀 수 있습니다.`);
+  const name = card.querySelector(".jeonggan-note");
+  const pitch = card.querySelector(".jeonggan-pitch");
+  if (name) name.textContent = note.solfege;
+  if (pitch) pitch.textContent = `${durationSymbol(note.duration)} ${note.pitch === "rest" ? "쉼표" : note.pitch}`;
+}
+
+function clampNumber(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function renderMotifWorkshop() {
+  const motif = currentMotifItems();
+  const selectedNotes = selectedSeedSourceIds();
+  motifPreview.innerHTML = "";
+
+  if (selectedNotes.length > 0) {
+    motifMain.textContent = "";
+    motifGuide.textContent = "";
+    renderPreparedSeedPreview();
+  } else if (motif.length === 0) {
+    motifMain.textContent = `${selectedSeedTargetLength()}개 ${seedShapeLabel()} 씨앗을 준비했어요.`;
+    motifGuide.textContent = "음을 고르거나 씨앗 심기로 바로 시작해 보세요.";
+    renderPreparedSeedPreview();
+  } else {
+    motifMain.textContent = `${seedShapeLabel()}으로 바꾼 씨앗을 준비했어요.`;
+    motifGuide.textContent = "씨앗 심기를 누르면 현재 씨앗을 이 모양으로 변형해 이어 붙입니다.";
+    renderPreparedSeedPreview();
+  }
+
+  motifSeedBtn.textContent = selectedNotes.length > 0 ? "선택 구성음 심기" : "씨앗 심기";
+}
+
+function renderPreparedSeedPreview() {
+  const previewIds = buildSeedNoteIds();
+  if (previewIds.length === 0) {
+    motifPreview.innerHTML = "<em>씨앗을 고르는 중입니다.</em>";
+    return;
+  }
+
+  previewIds.forEach((noteId) => {
+    const note = NOTE_BY_ID[noteId];
+    if (!note) return;
+    const chip = document.createElement("span");
+    chip.textContent = note.solfege;
+    motifPreview.appendChild(chip);
+  });
+}
+
+function renderHint() {
+  if (!hintNotes || !hintInsertBtn || !hintMain || !hintDetail) return;
+  const hint = getComposerHint();
+  hintMain.textContent = compactHintMain(hint);
+  hintDetail.textContent = hint.detail;
+  hintNotes.innerHTML = "";
+  hint.noteIds.forEach((noteId) => {
+    const note = NOTE_BY_ID[noteId];
+    if (!note) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = `hint-note ${note.type}`;
+    button.dataset.hintNote = noteId;
+    button.innerHTML = `<strong>${note.solfege}</strong><small>${note.pitch}</small>`;
+    hintNotes.appendChild(button);
+  });
+  hintInsertBtn.disabled = !hint.insertId;
+  hintInsertBtn.textContent = hint.replaceIndex !== null ? "바꾸기" : "넣기";
+  hintInsertBtn.dataset.hintNote = hint.insertId || "";
+  hintInsertBtn.dataset.hintDuration = hint.duration || "";
+}
+
+function compactHintMain(hint) {
+  if (hint.replaceIndex !== null && hint.insertId) {
+    return `${hint.replaceIndex + 1}번 → ${NOTE_BY_ID[hint.insertId]?.solfege || "건반음"}`;
+  }
+  if (hint.insertId) return `추천: ${NOTE_BY_ID[hint.insertId]?.solfege || "음"}`;
+  if (hint.title.includes("마지막")) return "마지막을 도로";
+  if (hint.title.includes("재생")) return "재생하며 확인";
+  if (hint.title.includes("음악 씨앗")) return "씨앗 반복 확인";
+  return hint.title;
+}
+
+function getComposerHint() {
+  const target = Number(targetBeats.value);
+  const total = totalBeats();
+  const remaining = target - total;
+  const editing = state.selectedCardIndex !== null;
+  const activeBeat = editing ? beatStartForIndex(state.selectedCardIndex) : Math.min(total, target - 0.001);
+  const chord = chordForBeatValue(Math.max(0, activeBeat), target);
+  const previous = editing ? previousSounding(state.selectedCardIndex) : lastSounding();
+  const next = editing ? nextSounding(state.selectedCardIndex) : null;
+  const replaceIndex = editing ? state.selectedCardIndex : null;
+  const duration = editing ? state.melody[state.selectedCardIndex].duration : hintDurationForRemaining(remaining);
+  const candidates = rotateHintNotes(recommendedNotesFor(chord, previous, next));
+
+  if (editing) {
+    return {
+      title: `${state.selectedCardIndex + 1}번째 카드는 ${chord.name} 자리예요.`,
+      detail: `${noteListText(candidates)} 중에서 앞뒤 음과 가까운 음을 골라 보세요.`,
+      noteIds: candidates,
+      insertId: candidates[0],
+      duration,
+      replaceIndex,
+    };
+  }
+
+  if (state.melody.length === 0) {
+    const starts = rotateHintNotes(uniqueNotes([...getInspirationProfile().starts, ...chord.safe]));
+    return {
+      title: "첫 음은 편한 중심음으로 시작해 보세요.",
+      detail: `${chord.name} 자리라 ${noteListText(chord.safe)}이 안정적으로 들립니다.`,
+      noteIds: starts.slice(0, 4),
+      insertId: starts[0],
+      duration,
+      replaceIndex: null,
+    };
+  }
+
+  if (total > target) {
+    return {
+      title: "목표 박자보다 조금 길어요.",
+      detail: `현재 ${formatBeat(total)}박입니다. 긴 카드를 줄이거나 마지막 카드를 지워 보세요.`,
+      noteIds: [],
+      insertId: null,
+      duration: null,
+      replaceIndex: null,
+    };
+  }
+
+  if (remaining <= 0) {
+    const last = lastSounding();
+    if (last && last.id !== "C4" && last.id !== "C5") {
+      const ending = chooseComfortableEnding(previousSounding(state.melody.length - 1)?.id);
+      return {
+        title: "마지막 카드를 도로 바꾸면 더 마무리돼요.",
+        detail: "완성된 멜로디는 끝음이 도일 때 안정감이 생깁니다.",
+        noteIds: ["C4", "C5"],
+        insertId: ending,
+        duration: state.melody[state.melody.length - 1].duration,
+        replaceIndex: state.melody.length - 1,
+      };
+    }
+    if (!analyzeHook().hasRepeat) {
+      return {
+        title: "음악 씨앗을 더 살리려면 앞 모양을 다시 써 보세요.",
+        detail: "비슷한 2~3개 음 모양이 뒤에서 한 번 더 나오면 더 잘 기억됩니다.",
+        noteIds: firstMotifNotes(),
+        insertId: null,
+        duration: null,
+        replaceIndex: null,
+      };
+    }
+    return {
+      title: "이제 재생하며 마음에 드는 카드를 찾아보세요.",
+      detail: "카드를 눌러 선택한 뒤 건반음으로 바꾸면 작은 수정도 쉽게 할 수 있어요.",
+      noteIds: candidates,
+      insertId: null,
+      duration: null,
+      replaceIndex: null,
+    };
+  }
+
+  const passingHint = getPassingHint(previous, remaining);
+  if (passingHint) return passingHint;
+
+  if (!analyzeHook().hasHighPoint && total >= target * 0.45) {
+    const highNotes = rotateHintNotes(getInspirationProfile().highPoints.filter((noteId) => !previous || isComfortableMove(previous.id, noteId)));
+    if (highNotes.length > 0) {
+      return {
+        title: "중간에 높은 음 포인트를 하나 넣어 보세요.",
+        detail: `${noteListText(highNotes)}로 살짝 올라가면 음악 씨앗이 더 선명해집니다.`,
+        noteIds: highNotes,
+        insertId: highNotes[0],
+        duration,
+        replaceIndex: null,
+      };
+    }
+  }
+
+  if (!analyzeHook().hasRepeat && state.melody.length >= 3 && remaining >= 1) {
+    const motif = firstMotifNotes();
+    const insertId = motif.find((noteId) => !previous || isComfortableMove(previous.id, noteId)) || candidates[0];
+    return {
+      title: "앞에서 좋았던 모양을 한 번 더 불러오세요.",
+      detail: `${noteListText(motif)} 느낌을 다시 쓰면 음악 씨앗이 살아납니다.`,
+      noteIds: uniqueNotes([...motif, ...candidates]).slice(0, 4),
+      insertId,
+      duration,
+      replaceIndex: null,
+    };
+  }
+
+  if (!analyzeHook().hasRhythmMix && remaining >= 0.5) {
+    const rhythmDuration = remaining >= 2 ? 2 : 0.5;
+    return {
+      title: "리듬에 숨을 조금 섞어 보세요.",
+      detail: "건반음을 짧거나 길게 넣으면 음악 씨앗의 말맛이 살아납니다.",
+      noteIds: candidates,
+      insertId: candidates[0],
+      duration: rhythmDuration,
+      replaceIndex: null,
+    };
+  }
+
+  return {
+    title: `지금은 ${chord.name} 코드 자리입니다.`,
+    detail: `${noteListText(chord.safe)}이 잘 어울리고, 이전 음과 가까운 ${NOTE_BY_ID[candidates[0]]?.solfege || "음"}을 먼저 추천해요.`,
+    noteIds: candidates,
+    insertId: candidates[0],
+    duration,
+    replaceIndex: null,
+  };
+}
+
+function insertHintNote(noteId = null) {
+  const hint = getComposerHint();
+  const targetId = noteId || hint.insertId;
+  const note = NOTE_BY_ID[targetId];
+  if (!note || !hint.duration) {
+    showToast("지금은 카드를 고쳐 보라는 힌트예요.");
+    return;
+  }
+  if (note.type === "passing" && !passingMode.checked) {
+    passingMode.checked = true;
+    renderNoteButtons();
+  }
+  if (hint.replaceIndex !== null) state.selectedCardIndex = hint.replaceIndex;
+  addOrReplaceNote(note, hint.duration);
+  state.hintStep = 0;
+}
+
+function seedMotif() {
+  const motifIds = buildSeedNoteIds();
+  const motif = motifIds
+    .map((noteId) => NOTE_BY_ID[noteId])
+    .filter(Boolean)
+    .map((note) => toMelodyNote(note, 1));
+
+  if (motif.length === 0) return;
+  if (!ensureRoomForMotif(motif, "음악 씨앗")) {
+    return;
+  }
+
+  state.melody.push(...motif);
+  state.selectedCardIndex = null;
+  saveMelody();
+  render();
+  previewMotif(motif);
+  showToast(`${motif.length}음 음악 씨앗을 심었어요.`);
+}
+
+function targetBeatOptions() {
+  return Array.from(targetBeats.options).map((option) => Number(option.value)).filter((value) => Number.isFinite(value));
+}
+
+function canFitOrGrowTarget(neededBeats) {
+  return targetBeatOptions().some((target) => totalBeats() + neededBeats <= target);
+}
+
+function ensureRoomForMotif(motif, actionLabel) {
+  const needed = motifBeatLength(motif);
+  if (remainingBeats() >= needed) return true;
+
+  const nextTarget = targetBeatOptions().find((target) => totalBeats() + needed <= target);
+  if (!nextTarget) {
+    showToast(`${actionLabel}을 넣을 공간이 부족해요. 일부를 지우거나 32마디 안에서 줄여 주세요.`);
+    return false;
+  }
+
+  targetBeats.value = String(nextTarget);
+  beatTargetLabel.textContent = nextTarget;
+  targetMeasureLabel.textContent = measureCountText(nextTarget);
+  showToast(`${actionLabel}을 이어 붙이려고 길이를 ${targetLengthText(nextTarget)}로 늘렸어요.`);
+  return true;
+}
+
+function captureGroupMotif() {
+  const motifText = currentGroupMotifText();
+  if (!motifText) {
+    showToast("기록할 씨앗을 먼저 만들어 주세요.");
+    return;
+  }
+
+  const targetField = groupMotifInputs.find((field) => field.value.trim() === "") || groupDecisionInput;
+  targetField.value = motifText;
+  saveMelody();
+  renderGroupVariations();
+  showToast("원 모티브를 기록했어요.");
+}
+
+async function useGroupMotif() {
+  const sourceText = currentGroupMotifText() || groupDecisionInput.value.trim() || groupMotifInputs.find((field) => field.value.trim())?.value || "";
+  const motif = parseGroupMotifText(sourceText);
+  if (motif.length < 2) {
+    showToast("원 모티브를 2음 이상 만들어 주세요.");
+    return;
+  }
+  if (!ensureRoomForMotif(motif, "원 모티브")) {
+    return;
+  }
+
+  state.melody.push(...motif);
+  state.selectedCardIndex = null;
+  saveMelody();
+  render();
+  await previewMotif(motif);
+  showToast("원 모티브를 멜로디에 심었어요.");
+}
+
+function renderGroupVariations() {
+  const baseMotif = getVariationBaseMotif();
+  renderVariationSourcePreview(baseMotif);
+  const variations = baseMotif.length >= 2 ? buildMotifVariations(baseMotif) : [];
+  if (variations.length === 0) {
+    variationGrid.innerHTML = `<div class="variation-empty">위쪽 음악 씨앗이 2음 이상이면 4가지 멜로디 변화가 만들어집니다.</div>`;
+    selectedVariationIndexInput.value = "";
+    renderSelectedVariationSummary([]);
+    return;
+  }
+
+  const selectedIndex = getSelectedVariationIndex();
+  if (selectedIndex !== null && !variations[selectedIndex]) selectedVariationIndexInput.value = "";
+  variationGrid.innerHTML = variations.map((variation, index) => `
+    <article class="variation-card ${index === getSelectedVariationIndex() ? "selected" : ""}">
+      <strong>${variation.title}</strong>
+      <span class="selected-mark">선택됨</span>
+      <p>${variation.detail}</p>
+      <div class="variation-notes">${renderVariationNoteChips(variation.notes, baseMotif)}</div>
+      <div class="variation-actions">
+        <button type="button" data-variation-preview-index="${index}">미리듣기</button>
+        <button type="button" data-variation-index="${index}">이 변형 선택</button>
+      </div>
+    </article>
+  `).join("");
+  renderSelectedVariationSummary(variations);
+}
+
+function buildSelectedMotifVariations() {
+  const motif = getVariationBaseMotif();
+  if (motif.length < 2) return [];
+  return buildMotifVariations(motif);
+}
+
+function getVariationBaseMotif() {
+  return variationSourceMotifItems();
+}
+
+function extractVariationBaseText(text) {
+  const firstChunk = String(text || "").trim().split(/[\n,;/|]+/)[0]?.trim() || "";
+  if (!firstChunk || firstChunk.includes("-")) return firstChunk;
+  const tokens = firstChunk.split(/\s+/).filter(Boolean);
+  if (tokens.length <= 1) return firstChunk;
+  const noteWordPattern = /^(높은\s*도|도|레|미|파|솔|라|시|쉼)$/;
+  return tokens.every((token) => noteWordPattern.test(token)) ? firstChunk : tokens[0];
+}
+
+function renderVariationSourcePreview(motif) {
+  if (motif.length === 0) {
+    variationSourcePreview.innerHTML = `
+      <small>위쪽 음악 씨앗에서 모티브를 먼저 만들어 주세요.</small>
+    `;
+    return;
+  }
+  variationSourcePreview.innerHTML = `
+    <div class="variation-source-notes">${motif.map((note) => `<span>${note.solfege}${durationSymbol(note.duration)}</span>`).join("")}</div>
+  `;
+}
+
+function buildMotifVariations(motif) {
+  const seed = motif.slice(0, MAX_SEED_NOTES).map(cloneMotifNote);
+  const repeatedShape = seed.map(cloneMotifNote);
+  if (repeatedShape.length > 1) {
+    repeatedShape[1] = cloneMotifNote(repeatedShape[0], repeatedShape[1].duration);
+  }
+
+  const changedEnding = seed.map(cloneMotifNote);
+  changedEnding[changedEnding.length - 1] = noteWithId(variationMotifEnding(changedEnding[changedEnding.length - 1].id), changedEnding[changedEnding.length - 1].duration);
+  const reversed = seed.slice().reverse().map(cloneMotifNote);
+  const rhythmic = seed.map((note, index) => cloneMotifNote(note, rhythmDurationForVariation(seed.length, index)));
+
+  return [
+    {
+      title: "반복형",
+      detail: "원 모티브 안에서 앞 음을 한 번 더 반복합니다.",
+      notes: repeatedShape,
+    },
+    {
+      title: "끝음 변화",
+      detail: "앞부분은 그대로 두고 마지막 음만 새 방향으로 보냅니다.",
+      notes: changedEnding,
+    },
+    {
+      title: "거꾸로 진행",
+      detail: "씨앗의 음 순서를 뒤집어 대답하는 느낌을 만듭니다.",
+      notes: reversed,
+    },
+    {
+      title: "리듬 변화",
+      detail: "같은 음을 짧고 긴 박으로 바꾸어 움직임을 만듭니다.",
+      notes: rhythmic,
+    },
+  ];
+}
+
+function renderVariationNoteChips(notes, baseMotif, compareFromStart = true) {
+  return notes.map((note, index) => {
+    const changeClass = variationDifferenceClass(note, index, baseMotif, compareFromStart);
+    return `<span class="${changeClass}">${note.solfege}${durationSymbol(note.duration)}</span>`;
+  }).join("");
+}
+
+function variationDifferenceClass(note, index, baseMotif, compareFromStart = true) {
+  const baseIndex = compareFromStart ? index % Math.max(baseMotif.length, 1) : index;
+  const baseNote = baseMotif[baseIndex];
+  if (!baseNote) return "changed";
+  const isExtended = index >= baseMotif.length;
+  const isChanged = note.id !== baseNote.id || note.duration !== baseNote.duration;
+  if (isChanged) return "changed";
+  return isExtended ? "added" : "";
+}
+
+function variationChangeSummary(notes, baseMotif) {
+  const changed = notes.filter((note, index) => variationDifferenceClass(note, index, baseMotif) === "changed").length;
+  const added = Math.max(0, notes.length - baseMotif.length);
+  const parts = [];
+  if (changed > 0) parts.push(`${changed}곳 변화`);
+  if (added > 0) parts.push(`${added}음 확장`);
+  return parts.length ? parts.join(", ") : "리듬/구조 변화";
+}
+
+function getSelectedVariationIndex() {
+  if (selectedVariationIndexInput.value === "") return null;
+  const index = Number(selectedVariationIndexInput.value);
+  return Number.isInteger(index) && index >= 0 && index < 4 ? index : null;
+}
+
+function selectMotifVariation(index) {
+  const variation = buildSelectedMotifVariations()[index];
+  if (!variation) return;
+  selectedVariationIndexInput.value = String(index);
+  if (!variationOpinionInput.value.trim()) {
+    variationOpinionInput.focus();
+  }
+  saveMelody();
+  renderGroupVariations();
+  showToast(`${variation.title} 멜로디 변화를 선택했어요. 이제 의견을 적어 보세요.`);
+}
+
+function renderSelectedVariationSummary(variations) {
+  const selectedIndex = getSelectedVariationIndex();
+  const variation = selectedIndex === null ? null : variations[selectedIndex];
+  if (!variation) {
+    selectedVariationSummary.innerHTML = `
+      <strong>선택된 멜로디 변화 없음</strong>
+      <small>멜로디 변화를 하나 선택한 뒤 의견을 적고 반영해 보세요.</small>
+    `;
+    previewSelectedVariationBtn.disabled = true;
+    previewReflectedVariationBtn.disabled = true;
+    applyReflectedVariationBtn.disabled = true;
+    return;
+  }
+
+  const baseMotif = getVariationBaseMotif();
+  const reflected = buildReflectedVariation(variation);
+  selectedVariationSummary.innerHTML = `
+    <strong>선택: ${variation.title}</strong>
+    <div class="variation-compare">
+      <div class="variation-compare-row">
+        <b>원 모티브</b>
+        <div class="variation-compare-notes">${renderVariationNoteChips(baseMotif, baseMotif, false)}</div>
+      </div>
+      <div class="variation-arrow">→</div>
+      <div class="variation-compare-row">
+        <b>선택 변화</b>
+        <div class="variation-compare-notes">${renderVariationNoteChips(variation.notes, baseMotif)}</div>
+      </div>
+    </div>
+    <small>${variationChangeSummary(variation.notes, baseMotif)}${reflected.applied.length ? `<br>의견 반영: ${reflected.applied.join(", ")}` : "<br>의견을 적으면 선택 변화에서 한 번 더 바뀝니다."}</small>
+  `;
+  previewSelectedVariationBtn.disabled = false;
+  previewReflectedVariationBtn.disabled = false;
+  applyReflectedVariationBtn.disabled = false;
+}
+
+async function previewSelectedVariation() {
+  const variation = getSelectedVariation();
+  if (!variation) {
+    showToast("먼저 멜로디 변화를 선택해 주세요.");
+    return;
+  }
+  await playVariationComparison(getVariationBaseMotif(), variation.notes, `원 모티브 다음에 ${variation.title} 멜로디 변화를 들어봅니다.`);
+}
+
+async function previewReflectedVariation() {
+  const variation = getSelectedVariation();
+  if (!variation) {
+    showToast("먼저 멜로디 변화를 선택해 주세요.");
+    return;
+  }
+  const reflected = buildReflectedVariation(variation);
+  renderReflectedVariationSummary(variation, reflected);
+  if (reflected.applied.length) {
+    await playVariationComparison(variation.notes, reflected.notes, "선택 변화 다음에 의견 반영 결과를 들어봅니다.");
+    return;
+  }
+  await playVariationComparison(getVariationBaseMotif(), variation.notes, "아직 반영할 의견이 없어 원 모티브 다음에 선택 변화를 들어봅니다.");
+}
+
+async function applyReflectedVariation() {
+  const variation = getSelectedVariation();
+  if (!variation) {
+    showToast("먼저 멜로디 변화를 선택해 주세요.");
+    return;
+  }
+  const reflected = buildReflectedVariation(variation);
+  renderReflectedVariationSummary(variation, reflected);
+  if (!ensureRoomForMotif(reflected.notes, "의견 반영 멜로디 변화")) return;
+
+  state.melody.push(...reflected.notes.map(cloneMotifNote));
+  state.selectedCardIndex = null;
+  saveMelody();
+  render();
+  await previewMotif(reflected.notes);
+  showToast("의견을 반영한 멜로디 변화를 멜로디에 심었어요.");
+}
+
+function getSelectedVariation() {
+  const selectedIndex = getSelectedVariationIndex();
+  if (selectedIndex === null) return null;
+  return buildSelectedMotifVariations()[selectedIndex] || null;
+}
+
+function renderReflectedVariationSummary(variation, reflected) {
+  const baseMotif = getVariationBaseMotif();
+  const label = "의견 반영";
+  const appliedText = reflected.applied.length ? reflected.applied.join(", ") : "반영된 변화 없음";
+  const guidance = opinionGuidance(variationOpinionInput.value, reflected);
+  selectedVariationSummary.innerHTML = `
+    <strong>선택: ${variation.title}</strong>
+    <div class="variation-compare">
+      <div class="variation-compare-row">
+        <b>선택 변화</b>
+        <div class="variation-compare-notes">${renderVariationNoteChips(variation.notes, baseMotif)}</div>
+      </div>
+      <div class="variation-arrow">→</div>
+      <div class="variation-compare-row">
+        <b>${label}</b>
+        <div class="variation-compare-notes">${renderVariationNoteChips(reflected.notes, variation.notes, false)}</div>
+      </div>
+    </div>
+    <small>${variationChangeSummary(reflected.notes, baseMotif)}<br>${label}: ${appliedText}<br>간단 안내: ${guidance}</small>
+  `;
+}
+
+function opinionGuidance(opinionText, reflected) {
+  const opinion = (opinionText || "").replace(/\s+/g, " ").trim();
+  if (!opinion) return "의견을 적으면 끝음, 순서, 길이 같은 기준으로 확인해요.";
+  const tips = [];
+  if (/(마지막|끝|끝음|마무리)/.test(opinion)) tips.push("끝음은 도로 마치면 안정적이에요.");
+  if (/(길게|두 박|2박)/.test(opinion)) tips.push("길게 만든 음은 강조점으로 들려요.");
+  if (/(짧게|반 박|반박|0.5)/.test(opinion)) tips.push("짧은 음은 다음 음으로 가볍게 이어 줘요.");
+  if (/(거꾸로|뒤집|반대로)/.test(opinion)) tips.push("순서를 뒤집으면 대답하는 느낌이 납니다.");
+  if (/(높|올라|위)/.test(opinion)) tips.push("높은 음은 한두 번만 쓰면 포인트가 됩니다.");
+  if (/(낮|내려|아래)/.test(opinion)) tips.push("낮은 음으로 내려오면 차분하게 들려요.");
+  if (/(반복|다시|한 번 더)/.test(opinion)) tips.push("반복은 기억하기 쉽게 만들어요.");
+  if (!tips.length && reflected.applied.length) tips.push("바뀐 부분을 듣고 어색하면 한 음만 더 가까운 음으로 고쳐 보세요.");
+  return (tips[0] || "좋은 의견이에요. 듣고 가장 자연스러운 쪽을 고르면 됩니다.");
+}
+
+function buildReflectedVariation(variation) {
+  return applyOpinionToVariation(variation.notes, variationOpinionInput.value);
+}
+
+function applyOpinionToVariation(notes, opinionText) {
+  const opinion = (opinionText || "").replace(/\s+/g, " ").trim();
+  const nextNotes = notes.map(cloneMotifNote);
+  const applied = [];
+  if (!opinion) return { notes: nextNotes, applied };
+
+  const noteId = noteIdFromKorean(opinion);
+  if (noteId && /(마지막|끝|끝음|마무리)/.test(opinion)) {
+    const lastIndex = nextNotes.length - 1;
+    nextNotes[lastIndex] = noteWithId(noteId, nextNotes[lastIndex].duration);
+    applied.push(`마지막 음 ${NOTE_BY_ID[noteId].solfege}`);
+  } else if (noteId && /(처음|첫|1번째|1번)/.test(opinion)) {
+    nextNotes[0] = noteWithId(noteId, nextNotes[0].duration);
+    applied.push(`첫 음 ${NOTE_BY_ID[noteId].solfege}`);
+  } else if (noteId && /(두 번째|둘째|2번째|2번)/.test(opinion) && nextNotes[1]) {
+    nextNotes[1] = noteWithId(noteId, nextNotes[1].duration);
+    applied.push(`두 번째 음 ${NOTE_BY_ID[noteId].solfege}`);
+  } else if (noteId && /(세 번째|셋째|3번째|3번)/.test(opinion) && nextNotes[2]) {
+    nextNotes[2] = noteWithId(noteId, nextNotes[2].duration);
+    applied.push(`세 번째 음 ${NOTE_BY_ID[noteId].solfege}`);
+  } else if (noteId && /(네 번째|넷째|4번째|4번)/.test(opinion) && nextNotes[3]) {
+    nextNotes[3] = noteWithId(noteId, nextNotes[3].duration);
+    applied.push(`네 번째 음 ${NOTE_BY_ID[noteId].solfege}`);
+  }
+
+  if (/(거꾸로|뒤집|반대로)/.test(opinion)) {
+    nextNotes.reverse();
+    applied.push("순서 뒤집기");
+  }
+
+  if (/(길게|두 박|2박)/.test(opinion)) {
+    const index = /(처음|첫|1번째|1번)/.test(opinion) ? 0 : nextNotes.length - 1;
+    nextNotes[index] = cloneMotifNote(nextNotes[index], 2);
+    applied.push(`${index + 1}번째 음 길게`);
+  }
+
+  if (/(짧게|반 박|반박|0.5)/.test(opinion)) {
+    const index = /(마지막|끝|끝음|마무리)/.test(opinion) ? nextNotes.length - 1 : 0;
+    nextNotes[index] = cloneMotifNote(nextNotes[index], 0.5);
+    applied.push(`${index + 1}번째 음 짧게`);
+  }
+
+  return { notes: nextNotes, applied };
+}
+
+function noteIdFromKorean(text) {
+  const match = text.match(/높은\s*도|도|레|미|파|솔|라|시|쉼/);
+  if (!match) return null;
+  const compact = match[0].replace(/\s+/g, "");
+  return {
+    도: "C4",
+    레: "D4",
+    미: "E4",
+    파: "F4",
+    솔: "G4",
+    라: "A4",
+    시: "B4",
+    높은도: "C5",
+    쉼: "REST",
+  }[compact] || null;
+}
+
+function variationMotifEnding(noteId) {
+  const variations = {
+    C4: "E4",
+    D4: "E4",
+    E4: "G4",
+    F4: "G4",
+    G4: "A4",
+    A4: "C5",
+    B4: "C5",
+    C5: "A4",
+    REST: "C4",
+  };
+  return variations[noteId] || noteId;
+}
+
+function previewGap(duration = 0.75) {
+  return toMelodyNote(NOTE_BY_ID.REST, duration);
+}
+
+function previewComparisonNotes(before, after) {
+  return [
+    ...before.map(cloneMotifNote),
+    previewGap(),
+    ...after.map(cloneMotifNote),
+  ];
+}
+
+async function playVariationComparison(before, after, message) {
+  await playPreviewNotes(previewComparisonNotes(before, after), message, 60 / 104);
+}
+
+async function previewMotifVariation(index) {
+  const variation = buildSelectedMotifVariations()[index];
+  if (!variation) return;
+  await playVariationComparison(getVariationBaseMotif(), variation.notes, `원 모티브 다음에 ${variation.title} 멜로디 변화를 들어봅니다.`);
+}
+
+function cloneMotifNote(note, duration = note.duration) {
+  return toMelodyNote(NOTE_BY_ID[note.id], duration);
+}
+
+function noteWithId(noteId, duration = 1) {
+  return toMelodyNote(NOTE_BY_ID[noteId] || NOTE_BY_ID.C4, duration);
+}
+
+function rhythmDurationForVariation(length, index) {
+  const patterns = {
+    2: [0.5, 1],
+    3: [0.5, 0.5, 2],
+    4: [0.5, 0.5, 1, 2],
+    5: [0.5, 0.5, 1, 1, 2],
+    6: [0.5, 0.5, 1, 0.5, 0.5, 2],
+    7: [0.5, 0.5, 1, 1, 0.5, 0.5, 2],
+  };
+  const safeLength = Math.min(MAX_SEED_NOTES, Math.max(2, length));
+  const pattern = patterns[safeLength] || buildLongRhythmVariation(safeLength);
+  return pattern[index] || 1;
+}
+
+function buildLongRhythmVariation(length) {
+  return Array.from({ length }, (_, index) => {
+    if (index === length - 1) return 2;
+    if (index % 4 === 0 || index % 4 === 1) return 0.5;
+    return 1;
+  });
+}
+
+function variationSourceMotifItems() {
+  const melodyMotif = state.melody
+    .filter((note) => note.type !== "rest")
+    .slice(0, MAX_SEED_NOTES)
+    .map(cloneMotifNote);
+  if (melodyMotif.length >= 2) return melodyMotif;
+
+  const selectedIds = selectedSeedSourceIds();
+  const sourceIds = selectedIds.length >= 2 ? selectedIds : buildSeedNoteIds();
+  return sourceIds
+    .map((id) => NOTE_BY_ID[id])
+    .filter(Boolean)
+    .slice(0, MAX_SEED_NOTES)
+    .map((note) => toMelodyNote(note, 1));
+}
+
+function currentGroupMotifText() {
+  return variationSourceMotifItems()
+    .map((note) => note.solfege)
+    .filter(Boolean)
+    .join(" - ");
+}
+
+function parseGroupMotifText(text) {
+  const matches = text.match(/높은\s*도|도|레|미|파|솔|라|시|쉼/g) || [];
+  const ids = matches.map((name) => {
+    const compact = name.replace(/\s+/g, "");
+    return {
+      도: "C4",
+      레: "D4",
+      미: "E4",
+      파: "F4",
+      솔: "G4",
+      라: "A4",
+      시: "B4",
+      높은도: "C5",
+      쉼: "REST",
+    }[compact];
+  }).filter(Boolean);
+
+  return ids.slice(0, MAX_SEED_NOTES).map((id) => toMelodyNote(NOTE_BY_ID[id], 1));
+}
+
+function currentMotifItems() {
+  return state.melody
+    .filter((note) => note.type !== "rest")
+    .slice(0, selectedSeedTargetLength());
+}
+
+function motifBeatLength(motif) {
+  return motif.reduce((sum, item) => sum + item.duration, 0);
+}
+
+function remainingBeats() {
+  return Number(targetBeats.value) - totalBeats();
+}
+
+function selectedSeedSourceIds() {
+  return state.selectedNoteIds
+    .filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId))
+    .slice(0, selectedSeedTargetLength());
+}
+
+function selectedSeedTargetLength() {
+  const length = Number(seedLength.value);
+  return Number.isInteger(length) && length >= 2 && length <= MAX_SEED_NOTES ? length : 3;
+}
+
+function selectedSeedNoteIds(length) {
+  const selected = selectedSeedSourceIds();
+  if (selected.length === 0) return [];
+  return shapeSeedFromSource(selected, length);
+}
+
+function currentMotifSeedSourceIds(length) {
+  return currentMotifItems()
+    .map((note) => note.id)
+    .filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId))
+    .slice(0, length);
+}
+
+function shapeSeedFromSource(sourceIds, length) {
+  const clean = sourceIds.filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId));
+  if (clean.length === 0) return [];
+  const byPitch = filledPitchSeedIds(clean, length);
+  if (state.selectedSeedShape === "fall") return byPitch.reverse().slice(0, length);
+  if (state.selectedSeedShape === "wave") return waveFromSelectedSeed(byPitch, length);
+  if (state.selectedSeedShape === "repeat") return repeatFromSelectedSeed(clean, length);
+  if (state.selectedSeedShape === "leap") return leapFromSelectedSeed(byPitch, length);
+  if (state.selectedSeedShape === "return") return returnFromSelectedSeed(byPitch, length);
+  if (state.selectedSeedShape === "echo") return echoFromSelectedSeed(clean, length);
+  if (state.selectedSeedShape === "finish") return finishFromSelectedSeed(byPitch, length);
+  return byPitch.slice(0, length);
+}
+
+function filledPitchSeedIds(sourceIds, length) {
+  const ordered = [...sourceIds].sort((left, right) => NOTE_BY_ID[left].degree - NOTE_BY_ID[right].degree);
+  return fillSeedLine(ordered, length, 1);
+}
+
+function fillSeedLine(sourceIds, length, direction = 1) {
+  const clean = sourceIds.filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId));
+  if (clean.length === 0) return [];
+  const filled = clean.slice(0, length);
+  let cursor = PENTATONIC_KEY_IDS.indexOf(filled[filled.length - 1]);
+  if (cursor < 0) cursor = 0;
+  while (filled.length < length) {
+    cursor = (cursor + direction + PENTATONIC_KEY_IDS.length) % PENTATONIC_KEY_IDS.length;
+    filled.push(PENTATONIC_KEY_IDS[cursor]);
+  }
+  return filled.slice(0, length);
+}
+
+function waveFromSelectedSeed(orderedIds, length) {
+  const result = [];
+  let left = 0;
+  let right = orderedIds.length - 1;
+  while (result.length < orderedIds.length) {
+    result.push(orderedIds[left]);
+    if (left !== right) result.push(orderedIds[right]);
+    left += 1;
+    right -= 1;
+  }
+  return result.slice(0, length);
+}
+
+function repeatFromSelectedSeed(selectedIds, length) {
+  const first = selectedIds[0];
+  const next = selectedIds[1] || first;
+  return Array.from({ length }, (_, index) => index < Math.max(1, length - 1) ? first : next);
+}
+
+function leapFromSelectedSeed(orderedIds, length) {
+  const wideSteps = orderedIds.filter((_, index) => index % 2 === 0);
+  const inBetween = orderedIds.filter((_, index) => index % 2 === 1);
+  return expandNotePattern([...wideSteps, ...inBetween], length);
+}
+
+function returnFromSelectedSeed(orderedIds, length) {
+  const home = orderedIds[0];
+  if (!home) return [];
+  const high = orderedIds[orderedIds.length - 1] || home;
+  const middle = orderedIds.slice(1, -1).reverse();
+  return [...expandNotePattern([home, high, ...middle], Math.max(0, length - 1)), home].slice(0, length);
+}
+
+function echoFromSelectedSeed(selectedIds, length) {
+  const phrase = fillSeedLine(selectedIds, Math.min(2, length), 1);
+  return expandNotePattern(phrase, length);
+}
+
+function finishFromSelectedSeed(orderedIds, length) {
+  const finish = "C4";
+  const bodySource = orderedIds.filter((noteId) => noteId !== finish);
+  const body = expandNotePattern(bodySource.length > 0 ? bodySource : ["D4", "E4", "G4"], Math.max(0, length - 1));
+  return [...body, finish].slice(0, length);
+}
+
+function expandNotePattern(pattern, length) {
+  const cleanPattern = pattern.filter(Boolean);
+  if (cleanPattern.length === 0) return [];
+  const expanded = [];
+  while (expanded.length < length) expanded.push(...cleanPattern);
+  return expanded.slice(0, length);
+}
+
+function buildSeedNoteIds() {
+  const length = selectedSeedTargetLength();
+  const selectedSeed = selectedSeedNoteIds(length);
+  if (selectedSeed.length > 0) return selectedSeed;
+  const currentSeed = shapeSeedFromSource(currentMotifSeedSourceIds(length), length);
+  if (currentSeed.length > 0) return currentSeed;
+
+  const profile = getInspirationProfile();
+  const starts = uniqueNotes([...profile.starts, "C4", "E4", "G4", "A4"]).filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId));
+  const start = starts[0] || "C4";
+  const index = Math.max(0, PENTATONIC_KEY_IDS.indexOf(start));
+  const shape = state.selectedSeedShape;
+  const candidates = {
+    rise: directionalSeedFrom(index, length, 1),
+    fall: directionalSeedFrom(index, length, -1),
+    wave: waveSeedFrom(index, length),
+    repeat: repeatSeedFrom(index, length),
+    leap: leapSeedFrom(index, length),
+    return: returnSeedFrom(index, length),
+    echo: echoSeedFrom(index, length),
+    finish: finishSeedFrom(index, length),
+  };
+  return (candidates[shape] || candidates.rise).slice(0, length);
+}
+
+function directionalSeedFrom(startIndex, length, direction) {
+  return Array.from({ length }, (_, offset) => {
+    const rawIndex = startIndex + offset * direction;
+    const index = ((rawIndex % PENTATONIC_KEY_IDS.length) + PENTATONIC_KEY_IDS.length) % PENTATONIC_KEY_IDS.length;
+    return PENTATONIC_KEY_IDS[index];
+  });
+}
+
+function waveSeedFrom(startIndex, length) {
+  const center = Math.min(Math.max(startIndex, 1), PENTATONIC_KEY_IDS.length - 2);
+  const pattern = [center, center + 1, center - 1, center + 2, center - 2];
+  return expandNotePattern(pattern.map((index) => PENTATONIC_KEY_IDS[((index % PENTATONIC_KEY_IDS.length) + PENTATONIC_KEY_IDS.length) % PENTATONIC_KEY_IDS.length]), length);
+}
+
+function repeatSeedFrom(startIndex, length) {
+  const first = PENTATONIC_KEY_IDS[Math.max(0, Math.min(PENTATONIC_KEY_IDS.length - 1, startIndex))];
+  const next = PENTATONIC_KEY_IDS[Math.max(0, Math.min(PENTATONIC_KEY_IDS.length - 1, startIndex + 1))] || first;
+  return Array.from({ length }, (_, index) => index < Math.max(1, length - 1) ? first : next);
+}
+
+function leapSeedFrom(startIndex, length) {
+  const pattern = [0, 2, 4, 1, 3].map((offset) => PENTATONIC_KEY_IDS[(startIndex + offset) % PENTATONIC_KEY_IDS.length]);
+  return expandNotePattern(pattern, length);
+}
+
+function returnSeedFrom(startIndex, length) {
+  const home = PENTATONIC_KEY_IDS[startIndex] || "C4";
+  const body = directionalSeedFrom(startIndex, Math.max(0, length - 1), 1);
+  return [...body, home].slice(0, length);
+}
+
+function echoSeedFrom(startIndex, length) {
+  const first = PENTATONIC_KEY_IDS[startIndex] || "C4";
+  const second = PENTATONIC_KEY_IDS[(startIndex + 1) % PENTATONIC_KEY_IDS.length] || first;
+  const third = PENTATONIC_KEY_IDS[(startIndex + 2) % PENTATONIC_KEY_IDS.length] || second;
+  return expandNotePattern([first, second, first, second, third], length);
+}
+
+function finishSeedFrom(startIndex, length) {
+  const body = waveSeedFrom(startIndex, Math.max(0, length - 1));
+  return [...body, "C4"].slice(0, length);
+}
+
+function seedShapeLabel() {
+  return SEED_SHAPE_LABELS[state.selectedSeedShape] || SEED_SHAPE_LABELS.rise;
+}
+
+function analyzeHook() {
+  const sounding = state.melody.filter((note) => note.type !== "rest");
+  const hookIndexes = findRepeatedMotifIndexes(state.melody);
+  const durations = new Set(state.melody.map((note) => note.duration));
+  const highPointIndex = sounding.findIndex((note, index) => {
+    const isLaterHalf = index >= Math.floor(sounding.length * 0.45);
+    return isLaterHalf && (note.id === "A4" || note.id === "C5");
+  });
+
+  return {
+    hasRepeat: hookIndexes.size >= 4,
+    hasHighPoint: highPointIndex >= 0,
+    hasRhythmMix: durations.size >= 2,
+  };
+}
+
+function analyzeOpeningMotif() {
+  const sounding = state.melody.filter((note) => note.type !== "rest");
+  const size = selectedSeedTargetLength();
+  const motif = sounding.slice(0, size);
+  if (motif.length < size) {
+    return { hasMotif: false, hasDevelopment: false, exactCount: 0, variedCount: 0, label: "" };
+  }
+
+  const motifIds = motif.map((note) => note.id);
+  const ids = sounding.map((note) => note.id);
+  let exactCount = 0;
+  let variedCount = 0;
+
+  for (let index = motifIds.length; index <= ids.length - motifIds.length; index += 1) {
+    const slice = ids.slice(index, index + motifIds.length);
+    const sameHead = slice.slice(0, motifIds.length - 1).every((id, offset) => id === motifIds[offset]);
+    if (!sameHead) continue;
+    if (slice.every((id, offset) => id === motifIds[offset])) {
+      exactCount += 1;
+    } else {
+      variedCount += 1;
+    }
+  }
+
+  return {
+    hasMotif: true,
+    hasDevelopment: exactCount + variedCount > 0,
+    exactCount,
+    variedCount,
+    label: motif.map((note) => note.solfege).join("·"),
+  };
+}
+
+function findRepeatedMotifIndexes(melody) {
+  const result = new Set();
+  const ids = melody.map((note) => note.id);
+
+  [3, 2].some((size) => {
+    const seen = new Map();
+    for (let index = 0; index <= ids.length - size; index += 1) {
+      const slice = ids.slice(index, index + size);
+      if (slice.includes("REST")) continue;
+      const key = slice.join("-");
+      if (seen.has(key) && index - seen.get(key) >= size) {
+        for (let offset = 0; offset < size; offset += 1) {
+          result.add(seen.get(key) + offset);
+          result.add(index + offset);
+        }
+        return true;
+      }
+      if (!seen.has(key)) seen.set(key, index);
+    }
+    return false;
+  });
+
+  findOpeningMotifIndexes(melody).forEach((index) => result.add(index));
+  return result;
+}
+
+function findOpeningMotifIndexes(melody) {
+  const result = new Set();
+  const sounding = melody
+    .map((note, index) => ({ note, index }))
+    .filter((item) => item.note.type !== "rest");
+  const size = selectedSeedTargetLength();
+  const motif = sounding.slice(0, size);
+  if (motif.length < size) return result;
+
+  const motifIds = motif.map((item) => item.note.id);
+  motif.forEach((item) => result.add(item.index));
+
+  for (let index = motif.length; index <= sounding.length - motif.length; index += 1) {
+    const slice = sounding.slice(index, index + motif.length);
+    const sameHead = slice.slice(0, motif.length - 1).every((item, offset) => item.note.id === motifIds[offset]);
+    if (!sameHead) continue;
+    slice.forEach((item) => result.add(item.index));
+  }
+
+  return result;
+}
+
+function findPassingToneProblems() {
+  const problems = [];
+  state.melody.forEach((note, index) => {
+    if (note.type !== "passing") return;
+    const prev = previousSounding(index);
+    const next = nextSounding(index);
+    const label = `${index + 1}번째 ${note.solfege}`;
+
+    if (!prev || !next) {
+      problems.push(label);
+      return;
+    }
+
+    const allowedPatterns = {
+      F4: [["E4", "G4"], ["G4", "E4"]],
+      B4: [["A4", "C5"], ["C5", "A4"]],
+    };
+    const isAllowed = allowedPatterns[note.id]?.some(([left, right]) => prev.id === left && next.id === right);
+    if (!isAllowed) problems.push(label);
+  });
+  return problems;
+}
+
+function previousSounding(index) {
+  for (let i = index - 1; i >= 0; i -= 1) {
+    if (state.melody[i].type !== "rest") return state.melody[i];
+  }
+  return null;
+}
+
+function nextSounding(index) {
+  for (let i = index + 1; i < state.melody.length; i += 1) {
+    if (state.melody[i].type !== "rest") return state.melody[i];
+  }
+  return null;
+}
+
+function lastSounding() {
+  for (let index = state.melody.length - 1; index >= 0; index -= 1) {
+    if (state.melody[index].type !== "rest") return state.melody[index];
+  }
+  return null;
+}
+
+function beatStartForIndex(targetIndex) {
+  return state.melody
+    .slice(0, targetIndex)
+    .reduce((sum, note) => sum + note.duration, 0);
+}
+
+function hintDurationForRemaining(remaining) {
+  if (remaining <= 0) return null;
+  if (remaining >= DEFAULT_NOTE_DURATION) return DEFAULT_NOTE_DURATION;
+  if (remaining >= 1) return 1;
+  if (remaining >= 0.5) return 0.5;
+  return null;
+}
+
+function recommendedNotesFor(chord, previous, next) {
+  const options = [];
+  chord.safe.forEach((noteId) => addWeighted(options, noteId, 5));
+  if (previous && previous.type !== "rest") {
+    neighborIds(previous.id).forEach((noteId) => addWeighted(options, noteId, 3));
+    addWeighted(options, previous.id, 0.8);
+  }
+  getInspirationProfile().highPoints.forEach((noteId) => addWeighted(options, noteId, 0.7));
+
+  const ordered = options
+    .filter((option) => {
+      const note = NOTE_BY_ID[option.noteId];
+      if (!note || note.type !== "core") return false;
+      const fromPrevious = !previous || isComfortableMove(previous.id, option.noteId);
+      const toNext = !next || isComfortableMove(option.noteId, next.id);
+      return fromPrevious && toNext;
+    })
+    .sort((left, right) => right.weight - left.weight)
+    .map((option) => option.noteId);
+
+  const fallback = chord.safe.filter((noteId) => NOTE_BY_ID[noteId]?.type === "core");
+  return uniqueNotes([...ordered, ...fallback, "C4"]).slice(0, 4);
+}
+
+function rotateHintNotes(noteIds) {
+  const unique = uniqueNotes(noteIds).filter((noteId) => NOTE_BY_ID[noteId]);
+  if (unique.length === 0) return ["C4"];
+  const offset = state.hintStep % unique.length;
+  return unique.slice(offset).concat(unique.slice(0, offset));
+}
+
+function uniqueNotes(noteIds) {
+  return [...new Set(noteIds.filter(Boolean))];
+}
+
+function noteListText(noteIds) {
+  return uniqueNotes(noteIds)
+    .map((noteId) => NOTE_BY_ID[noteId]?.solfege)
+    .filter(Boolean)
+    .join("·");
+}
+
+function firstMotifNotes() {
+  const motif = state.melody
+    .filter((note) => note.type !== "rest")
+    .slice(0, selectedSeedTargetLength())
+    .map((note) => note.id);
+  return motif.length > 0 ? motif : ["C4", "E4", "G4"];
+}
+
+function getPassingHint(previous, remaining) {
+  if (!previous || remaining < 1) return null;
+
+  const resolvePassing = {
+    F4: { nextId: "G4", title: "파 다음은 솔로 풀어 주세요.", detail: "파는 미와 솔 사이를 지나갈 때 가장 자연스럽습니다." },
+    B4: { nextId: "C5", title: "시 다음은 높은 도로 풀어 주세요.", detail: "시는 라와 높은 도 사이를 지나갈 때 가장 자연스럽습니다." },
+  };
+  if (resolvePassing[previous.id]) {
+    const hint = resolvePassing[previous.id];
+    return {
+      title: hint.title,
+      detail: hint.detail,
+      noteIds: [hint.nextId],
+      insertId: hint.nextId,
+      duration: hintDurationForRemaining(remaining),
+      replaceIndex: null,
+    };
+  }
+
+  if (!passingMode.checked || remaining < 1.5) return null;
+
+  const passingStarts = {
+    E4: { passId: "F4", nextId: "G4", detail: "미에서 솔로 가까이 이어가면 자연스럽습니다." },
+    G4: { passId: "F4", nextId: "E4", detail: "솔-파-미로 내려오면 파가 자연스럽습니다." },
+    A4: { passId: "B4", nextId: "C5", detail: "라-시-높은 도로 지나가면 시가 자연스럽습니다." },
+    C5: { passId: "B4", nextId: "A4", detail: "높은 도-시-라로 내려오면 시가 자연스럽습니다." },
+  };
+  const hint = passingStarts[previous.id];
+  if (!hint || state.hintStep % 3 !== 1) return null;
+  return {
+    title: "가까운 음으로 이어 볼 수 있어요.",
+    detail: `${hint.detail} 먼저 ${NOTE_BY_ID[hint.passId].solfege}를 짧게 넣고 바로 ${NOTE_BY_ID[hint.nextId].solfege}로 이어 보세요.`,
+    noteIds: [hint.passId, hint.nextId],
+    insertId: hint.passId,
+    duration: 0.5,
+    replaceIndex: null,
+  };
+}
+
+function hasTooManyRepeats() {
+  let streak = 1;
+  for (let i = 1; i < state.melody.length; i += 1) {
+    if (state.melody[i].id === state.melody[i - 1].id && state.melody[i].type !== "rest") {
+      streak += 1;
+      if (streak >= 4) return true;
+    } else {
+      streak = 1;
+    }
+  }
+  return false;
+}
+
+function chordForBeat(beatStart) {
+  const target = Number(targetBeats.value);
+  return chordForBeatValue(beatStart, target);
+}
+
+function getInspirationProfile() {
+  return INSPIRATION_PROFILES[state.selectedStyle] || INSPIRATION_PROFILES.bright;
+}
+
+function getMoneyProgression() {
+  return CHORD_PROGRESSIONS[state.selectedProgression] || CHORD_PROGRESSIONS.pop;
+}
+
+function getMoneyChords() {
+  return getMoneyProgression().chords.map((name) => CHORD_LIBRARY[name]);
+}
+
+function moneyChordText() {
+  return getMoneyChords().map((chord) => chord.name).join(" - ");
+}
+
+function chordForBeatValue(beatStart, target) {
+  const moneyChords = getMoneyChords();
+  const span = target / moneyChords.length;
+  const index = Math.min(moneyChords.length - 1, Math.floor(beatStart / span));
+  return moneyChords[index];
+}
+
+function generateRandomMelody() {
+  stopMelody();
+  const target = Number(targetBeats.value);
+  state.melody = buildRandomMelody(target);
+  state.selectedCardIndex = null;
+  passingMode.checked = false;
+  renderNoteButtons();
+  saveMelody();
+  render();
+  showToast(`${getInspirationProfile().label}에서 영감을 받은 음악 씨앗을 랜덤 생성했어요.`);
+}
+
+function buildRandomMelody(target) {
+  const durations = buildRandomDurations(target);
+  const draft = [];
+  let previousId = null;
+
+  let beatStart = 0;
+  durations.forEach((duration, index) => {
+    const id = pickCoreNoteForBeat(beatStart, target, previousId, index);
+    draft.push(toMelodyNote(NOTE_BY_ID[id], duration));
+    previousId = id;
+    beatStart += duration;
+  });
+
+  applyHookShape(draft, target);
+  smoothLargeLeaps(draft);
+  const endingId = chooseComfortableEnding(draft[draft.length - 2]?.id);
+  draft[draft.length - 1] = toMelodyNote(NOTE_BY_ID[endingId], draft[draft.length - 1].duration);
+  repairPassingTones(draft);
+  smoothLargeLeaps(draft);
+  enforceHookRepeat(draft);
+  repairPassingTones(draft);
+  smoothLargeLeaps(draft);
+  draft[draft.length - 1] = toMelodyNote(NOTE_BY_ID[chooseComfortableEnding(draft[draft.length - 2]?.id)], draft[draft.length - 1].duration);
+  return draft;
+}
+
+function buildRandomDurations(target) {
+  const moneyChords = getMoneyChords();
+  const span = target / moneyChords.length;
+  const profile = getInspirationProfile();
+  let previousPattern = "";
+  const durations = [];
+
+  moneyChords.forEach(() => {
+    const section = buildSectionDurations(span, previousPattern, profile);
+    previousPattern = section.key;
+    durations.push(...section.durations);
+  });
+
+  return durations;
+}
+
+function buildSectionDurations(span, previousPattern, profile) {
+  let remaining = span;
+  let keySeed = previousPattern;
+  const durations = [];
+
+  while (remaining > 0) {
+    const chunk = remaining >= 4 ? 4 : 2;
+    const patterns = RHYTHM_PATTERNS[chunk] || RHYTHM_PATTERNS[2];
+    let pattern = chooseRhythmPattern(patterns, keySeed, profile);
+    let key = pattern.join("-");
+    if (patterns.length > 1 && key === keySeed) {
+      pattern = chooseRhythmPattern(patterns.filter((item) => item.join("-") !== keySeed), keySeed, profile);
+      key = pattern.join("-");
+    }
+    durations.push(...pattern);
+    keySeed = key;
+    remaining -= chunk;
+  }
+
+  return { durations, key: durations.join("-") };
+}
+
+function chooseRhythmPattern(patterns, previousPattern, profile) {
+  const options = patterns.map((pattern) => {
+    const key = pattern.join("-");
+    const liked = profile.rhythmLikes.includes(key);
+    const avoidsRepeat = key !== previousPattern;
+    return { pattern, weight: (liked ? 4 : 1) + (avoidsRepeat ? 0.6 : 0) };
+  });
+  const total = options.reduce((sum, option) => sum + option.weight, 0);
+  let cursor = Math.random() * total;
+  for (const option of options) {
+    cursor -= option.weight;
+    if (cursor <= 0) return option.pattern;
+  }
+  return options[0].pattern;
+}
+
+function pickCoreNoteForBeat(beatStart, target, previousId, eventIndex) {
+  const options = [];
+  const chord = chordForBeatValue(beatStart, target);
+  const profile = getInspirationProfile();
+  chord.safe.forEach((id) => addWeighted(options, id, 5.5));
+
+  if (previousId) {
+    neighborIds(previousId).forEach((id) => addWeighted(options, id, 3.2));
+    addWeighted(options, previousId, 1);
+    if (Math.random() < 0.28) {
+      CORE_IDS.forEach((id) => addWeighted(options, id, 1.6));
+    }
+  }
+
+  if (eventIndex === 0) {
+    profile.starts.forEach((noteId, index) => addWeighted(options, noteId, 10 - index * 2));
+  }
+
+  return chooseComfortableWeighted(options, previousId);
+}
+
+function insertPassingPatterns(draft, target) {
+  const maxCount = Math.max(1, Math.min(6, Math.floor(target / 6)));
+  const count = Math.min(maxCount, Math.max(1, Math.floor(draft.length / 6)));
+  const candidateCenters = shuffle(Array.from({ length: Math.max(0, draft.length - 3) }, (_, index) => index + 1));
+  const used = new Set();
+  let inserted = 0;
+
+  for (const center of candidateCenters) {
+    if (inserted >= count) break;
+    if (used.has(center - 1) || used.has(center) || used.has(center + 1)) continue;
+    const pattern = randomPassingPattern();
+    draft[center - 1] = toMelodyNote(NOTE_BY_ID[pattern[0]], draft[center - 1].duration);
+    draft[center] = toMelodyNote(NOTE_BY_ID[pattern[1]], draft[center].duration);
+    draft[center + 1] = toMelodyNote(NOTE_BY_ID[pattern[2]], draft[center + 1].duration);
+    used.add(center - 1);
+    used.add(center);
+    used.add(center + 1);
+    inserted += 1;
+  }
+}
+
+function applyHookShape(draft, target) {
+  if (draft.length < 6) return;
+
+  const motif = chooseHookMotif(target);
+  const motifSize = Math.min(motif.length, Math.max(2, Math.floor(draft.length / 3)));
+  const firstStart = 0;
+  const repeatRatios = target <= 8 ? [0.5] : target <= 16 ? [0.32, 0.62] : [0.25, 0.5, 0.74];
+  const repeatStarts = uniqueNumbers(repeatRatios.map((ratio, index) => Math.max(motifSize * (index + 1), Math.floor(draft.length * ratio))));
+  const protectedIndexes = new Set();
+
+  writeMotif(draft, firstStart, motif.slice(0, motifSize), false);
+  for (let offset = 0; offset < motifSize; offset += 1) protectedIndexes.add(firstStart + offset);
+  repeatStarts.forEach((start, index) => {
+    if (start + motifSize >= draft.length) return;
+    const shouldVary = target !== 8 && index === repeatStarts.length - 1;
+    writeMotif(draft, start, motif.slice(0, motifSize), shouldVary);
+    for (let offset = 0; offset < motifSize; offset += 1) protectedIndexes.add(start + offset);
+  });
+
+  const highPointIndex = findHighPointSlot(draft.length, protectedIndexes);
+  if (highPointIndex !== null) {
+    const highPointId = chooseComfortableHighPoint(draft, highPointIndex);
+    if (highPointId) {
+      draft[highPointIndex] = toMelodyNote(NOTE_BY_ID[highPointId], draft[highPointIndex].duration);
+    }
+  }
+}
+
+function chooseHookMotif(target) {
+  const profile = getInspirationProfile();
+  const profileMotifs = profile.motifs.length ? profile.motifs : HOOK_MOTIFS;
+  const candidates = target === 8
+    ? (Math.random() < 0.7 ? profileMotifs.filter((motif) => motif.includes("A4") || motif.includes("C5")) : profileMotifs)
+    : profileMotifs.concat([
+      ["C4", "E4", "G4", "A4"],
+      ["E4", "G4", "A4", "G4"],
+      ["A4", "G4", "E4", "D4"],
+      ["G4", "E4", "D4", "C4"],
+    ]);
+  const usable = candidates.length ? candidates : profileMotifs;
+  return usable[Math.floor(Math.random() * usable.length)];
+}
+
+function uniqueNumbers(values) {
+  return [...new Set(values)];
+}
+
+function findHighPointSlot(length, protectedIndexes) {
+  const preferredStart = Math.floor(length * 0.55);
+  for (let index = preferredStart; index < length - 1; index += 1) {
+    if (!protectedIndexes.has(index)) return index;
+  }
+  for (let index = length - 2; index >= 1; index -= 1) {
+    if (!protectedIndexes.has(index)) return index;
+  }
+  return null;
+}
+
+function chooseComfortableHighPoint(draft, index) {
+  const candidates = shuffle(getInspirationProfile().highPoints);
+  return candidates.find((noteId) => {
+    const previous = previousSoundingIn(draft, index);
+    const next = nextSoundingIn(draft, index);
+    const fromPrevious = !previous || isComfortableMove(previous.id, noteId);
+    const toNext = !next || isComfortableMove(noteId, next.id);
+    return fromPrevious && toNext;
+  }) || null;
+}
+
+function writeMotif(draft, start, motif, varyLast) {
+  motif.forEach((noteId, offset) => {
+    if (!draft[start + offset]) return;
+    const isLast = offset === motif.length - 1;
+    const nextId = varyLast && isLast ? varyMotifEnding(noteId) : noteId;
+    draft[start + offset] = toMelodyNote(NOTE_BY_ID[nextId], draft[start + offset].duration);
+  });
+}
+
+function varyMotifEnding(noteId) {
+  const variations = {
+    C4: ["E4", "G4"],
+    D4: ["E4", "C4"],
+    E4: ["G4", "D4"],
+    F4: ["G4"],
+    G4: ["A4", "E4"],
+    A4: ["C5", "G4"],
+    B4: ["C5"],
+    C5: ["A4", "C4"],
+  };
+  const choices = variations[noteId] || [noteId];
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
+function repairPassingTones(draft) {
+  draft.forEach((note, index) => {
+    if (note.id !== "F4" && note.id !== "B4") return;
+    const prev = previousSoundingIn(draft, index);
+    const next = nextSoundingIn(draft, index);
+    const valid = note.id === "F4"
+      ? prev && next && ((prev.id === "E4" && next.id === "G4") || (prev.id === "G4" && next.id === "E4"))
+      : prev && next && ((prev.id === "A4" && next.id === "C5") || (prev.id === "C5" && next.id === "A4"));
+
+    if (!valid) {
+      const replacement = note.id === "F4" ? "G4" : "A4";
+      draft[index] = toMelodyNote(NOTE_BY_ID[replacement], note.duration);
+    }
+  });
+}
+
+function enforceHookRepeat(draft) {
+  if (draft.length < 6 || findRepeatedMotifIndexes(draft).size >= 4) return;
+
+  const motif = chooseHookMotif(Number(targetBeats.value)).slice(0, 3);
+  const motifSize = 3;
+  const firstStart = 0;
+  const repeatStart = motifSize;
+
+  writeMotif(draft, firstStart, motif, false);
+  writeMotif(draft, repeatStart, motif, false);
+}
+
+function smoothLargeLeaps(draft) {
+  for (let index = 1; index < draft.length; index += 1) {
+    const previous = previousSoundingIn(draft, index);
+    const current = draft[index];
+    if (!previous || current.type === "rest" || isComfortableMove(previous.id, current.id)) continue;
+
+    const replacementId = chooseBridgeNote(previous.id, current.id);
+    if (replacementId && replacementId !== current.id) {
+      draft[index] = toMelodyNote(NOTE_BY_ID[replacementId], current.duration);
+    }
+  }
+}
+
+function chooseBridgeNote(previousId, currentId) {
+  const previous = NOTE_BY_ID[previousId];
+  const current = NOTE_BY_ID[currentId];
+  if (!previous || !current) return currentId;
+
+  const direction = Math.sign(current.degree - previous.degree);
+  const candidates = CORE_IDS
+    .filter((noteId) => {
+      const note = NOTE_BY_ID[noteId];
+      const movesForward = direction === 0 || Math.sign(note.degree - previous.degree) === direction;
+      return movesForward && isComfortableMove(previousId, noteId) && isComfortableMove(noteId, currentId);
+    })
+    .sort((left, right) => {
+      const leftDistance = Math.abs(NOTE_BY_ID[left].degree - current.degree);
+      const rightDistance = Math.abs(NOTE_BY_ID[right].degree - current.degree);
+      return leftDistance - rightDistance;
+    });
+
+  return candidates[0] || nearestComfortableCore(previousId, currentId);
+}
+
+function nearestComfortableCore(previousId, preferredId) {
+  return CORE_IDS
+    .filter((noteId) => isComfortableMove(previousId, noteId))
+    .sort((left, right) => {
+      const preferred = NOTE_BY_ID[preferredId];
+      const leftDistance = Math.abs(NOTE_BY_ID[left].degree - preferred.degree);
+      const rightDistance = Math.abs(NOTE_BY_ID[right].degree - preferred.degree);
+      return leftDistance - rightDistance;
+    })[0] || previousId;
+}
+
+function chooseComfortableEnding(previousId) {
+  const candidates = previousId && NOTE_BY_ID[previousId]?.degree >= NOTE_BY_ID.G4.degree
+    ? ["C5", "C4"]
+    : ["C4", "C5"];
+  return candidates.find((noteId) => !previousId || isComfortableMove(previousId, noteId)) || nearestComfortableCore(previousId, "C4");
+}
+
+function previousSoundingIn(melody, index) {
+  for (let i = index - 1; i >= 0; i -= 1) {
+    if (melody[i].type !== "rest") return melody[i];
+  }
+  return null;
+}
+
+function nextSoundingIn(melody, index) {
+  for (let i = index + 1; i < melody.length; i += 1) {
+    if (melody[i].type !== "rest") return melody[i];
+  }
+  return null;
+}
+
+function randomPassingPattern() {
+  const patterns = [
+    ["E4", "F4", "G4"],
+    ["G4", "F4", "E4"],
+    ["A4", "B4", "C5"],
+    ["C5", "B4", "A4"],
+  ];
+  return patterns[Math.floor(Math.random() * patterns.length)];
+}
+
+function chordForIndex(index, target) {
+  const moneyChords = getMoneyChords();
+  const span = target / moneyChords.length;
+  const chordIndex = Math.min(moneyChords.length - 1, Math.floor(index / span));
+  return moneyChords[chordIndex];
+}
+
+function neighborIds(noteId) {
+  const index = CORE_IDS.indexOf(noteId);
+  if (index < 0) return ["C4", "D4", "E4"];
+  return [CORE_IDS[index - 1], CORE_IDS[index + 1]].filter(Boolean);
+}
+
+function addWeighted(options, noteId, weight) {
+  if (!NOTE_BY_ID[noteId]) return;
+  const existing = options.find((option) => option.noteId === noteId);
+  if (existing) {
+    existing.weight += weight;
+  } else {
+    options.push({ noteId, weight });
+  }
+}
+
+function chooseWeighted(options) {
+  const total = options.reduce((sum, option) => sum + option.weight, 0);
+  let cursor = Math.random() * total;
+  for (const option of options) {
+    cursor -= option.weight;
+    if (cursor <= 0) return option.noteId;
+  }
+  return options[0]?.noteId || "C4";
+}
+
+function chooseComfortableWeighted(options, previousId) {
+  if (!previousId) return chooseWeighted(options);
+  const comfortable = options.filter((option) => isComfortableMove(previousId, option.noteId));
+  if (comfortable.length > 0) return chooseWeighted(comfortable);
+  return nearestComfortableCore(previousId, options[0]?.noteId || previousId);
+}
+
+function isComfortableMove(leftId, rightId) {
+  const left = NOTE_BY_ID[leftId];
+  const right = NOTE_BY_ID[rightId];
+  if (!left || !right || left.type === "rest" || right.type === "rest") return true;
+  return Math.abs(left.degree - right.degree) <= MAX_RANDOM_LEAP;
+}
+
+function shuffle(items) {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [result[index], result[swapIndex]] = [result[swapIndex], result[index]];
+  }
+  return result;
+}
+
+async function ensureAudioContext() {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) {
+    showToast("이 브라우저는 소리 재생을 지원하지 않아요.");
+    return null;
+  }
+  if (!state.audioContext) state.audioContext = new AudioContext();
+  if (state.audioContext.state === "suspended") await state.audioContext.resume();
+  return state.audioContext;
+}
+
+async function previewNote(note, duration) {
+  if (note.type === "rest") return;
+  const context = await ensureAudioContext();
+  if (!context) return;
+  playTone(context, note.freq, 0, Math.min(duration * 0.35, 0.55), 0.2, false);
+}
+
+async function previewMotif(motif) {
+  await playPreviewNotes(motif, "", 60 / 108);
+}
+
+async function playPreviewNotes(notes, message, beatSeconds = 60 / 108, options = {}) {
+  const playable = notes
+    .filter((note) => note && NOTE_BY_ID[note.id])
+    .map((note) => toMelodyNote(NOTE_BY_ID[note.id], note.duration));
+  if (playable.length === 0) {
+    showToast("미리 들을 음이 없습니다.");
+    return;
+  }
+
+  const playbackOptions = typeof options === "boolean"
+    ? { withPad: options, highlight: options }
+    : options;
+  const withPad = Boolean(playbackOptions?.withPad);
+  const shouldHighlight = Boolean(playbackOptions?.highlight);
+
+  stopMelody();
+  const context = await ensureAudioContext();
+  if (!context) return;
+
+  let cursor = 0;
+  if (withPad) {
+    scheduleChordPad(context, beatSeconds);
+    scheduleChordHighlights(beatSeconds);
+  }
+
+  playable.forEach((note, index) => {
+    const durationSeconds = normalizeDuration(note.duration) * beatSeconds;
+    const startDelay = cursor;
+    if (note.type !== "rest") {
+      const articulatedDuration = Math.min(durationSeconds * 0.72, Math.max(0.07, durationSeconds - 0.04));
+      playTone(context, note.freq, startDelay, articulatedDuration);
+    }
+    if (shouldHighlight) {
+      const timer = window.setTimeout(() => highlightCard(index), startDelay * 1000);
+      state.timers.push(timer);
+    }
+    cursor += durationSeconds;
+  });
+
+  const endTimer = window.setTimeout(stopMelody, (cursor + 0.2) * 1000);
+  state.timers.push(endTimer);
+  if (message) showToast(message);
+}
+
+async function playMelody() {
+  if (state.melody.length === 0) {
+    showToast("먼저 멜로디 카드를 만들어 주세요.");
+    return;
+  }
+
+  stopMelody();
+  const context = await ensureAudioContext();
+  if (!context) return;
+
+  const beatSeconds = 60 / 92;
+  let cursor = 0;
+  scheduleChordPad(context, beatSeconds);
+  scheduleChordHighlights(beatSeconds);
+
+  state.melody.forEach((note, index) => {
+    const durationSeconds = note.duration * beatSeconds;
+    const startDelay = cursor;
+    const timer = window.setTimeout(() => highlightCard(index), startDelay * 1000);
+    state.timers.push(timer);
+    if (note.type !== "rest") {
+      playTone(context, note.freq, startDelay, durationSeconds * 0.88);
+    }
+    cursor += durationSeconds;
+  });
+
+  const endTimer = window.setTimeout(() => {
+    if (repeatMode.checked) {
+      playMelody();
+      return;
+    }
+    stopMelody();
+  }, (cursor + 0.15) * 1000);
+  state.timers.push(endTimer);
+}
+
+function scheduleChordPad(context, beatSeconds) {
+  if (!padMode.checked) return;
+  const target = Number(targetBeats.value);
+  const moneyChords = getMoneyChords();
+  const spanBeats = target / moneyChords.length;
+  const sound = padSound.value;
+
+  moneyChords.forEach((chord, index) => {
+    const startDelay = index * spanBeats * beatSeconds;
+    const duration = spanBeats * beatSeconds;
+    const frequencies = CHORD_PAD_NOTES[chord.name] || [];
+    frequencies.forEach((frequency, noteIndex) => {
+      playPadTone(context, frequency, startDelay, duration, sound, noteIndex);
+    });
+  });
+}
+
+function scheduleChordHighlights(beatSeconds) {
+  const target = Number(targetBeats.value);
+  const moneyChords = getMoneyChords();
+  const spanBeats = target / moneyChords.length;
+  moneyChords.forEach((_, index) => {
+    const timer = window.setTimeout(() => highlightChord(index), index * spanBeats * beatSeconds * 1000);
+    state.timers.push(timer);
+  });
+}
+
+function playTone(context, frequency, startDelay, duration, volume = 0.2, shouldTrack = true) {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  const start = context.currentTime + startDelay;
+  const stop = start + duration;
+
+  oscillator.type = "sine";
+  oscillator.frequency.value = frequency;
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, Math.max(start + 0.03, stop - 0.04));
+
+  oscillator.connect(gain).connect(context.destination);
+  if (shouldTrack) trackAudioNode(oscillator, gain);
+  oscillator.start(start);
+  oscillator.stop(stop);
+}
+
+function playPadTone(context, frequency, startDelay, duration, sound, noteIndex) {
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+  const filter = context.createBiquadFilter();
+  const start = context.currentTime + startDelay;
+  const stop = start + duration;
+  const attack = Math.min(0.38, duration * 0.28);
+  const release = Math.min(0.48, duration * 0.34);
+  const releaseStart = Math.max(start + attack + 0.03, stop - release);
+  const volume = sound === "strings" ? 0.011 : 0.017;
+
+  oscillator.type = sound === "strings" ? "sawtooth" : "triangle";
+  oscillator.frequency.setValueAtTime(frequency, start);
+  oscillator.detune.setValueAtTime((noteIndex - 1) * (sound === "strings" ? 3 : 1), start);
+  filter.type = "lowpass";
+  filter.frequency.setValueAtTime(sound === "strings" ? 820 : 1300, start);
+  filter.Q.setValueAtTime(0.35, start);
+
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.linearRampToValueAtTime(volume, start + attack);
+  gain.gain.setValueAtTime(volume, releaseStart);
+  gain.gain.linearRampToValueAtTime(0.0001, Math.max(start + attack + 0.04, stop - 0.03));
+
+  oscillator.connect(filter).connect(gain).connect(context.destination);
+  trackAudioNode(oscillator, gain, filter);
+  oscillator.start(start);
+  oscillator.stop(stop);
+}
+
+function trackAudioNode(oscillator, gain, filter = null) {
+  const item = { oscillator, gain, filter };
+  state.audioNodes.push(item);
+  oscillator.onended = () => {
+    try {
+      oscillator.disconnect();
+      gain.disconnect();
+      if (filter) filter.disconnect();
+    } catch {
+      // 이미 정리된 노드는 조용히 무시합니다.
+    }
+    state.audioNodes = state.audioNodes.filter((node) => node !== item);
+  };
+}
+
+function highlightCard(index) {
+  document.querySelectorAll(".note-card").forEach((card) => card.classList.remove("playing"));
+  const card = document.querySelector(`.note-card[data-index="${index}"]`);
+  if (card) card.classList.add("playing");
+}
+
+function highlightChord(index) {
+  document.querySelectorAll(".money-row span").forEach((item) => item.classList.remove("active"));
+  const chord = document.querySelectorAll(".money-row span")[index];
+  if (chord) chord.classList.add("active");
+}
+
+function stopMelody() {
+  state.timers.forEach((timer) => window.clearTimeout(timer));
+  state.timers = [];
+  state.audioNodes.forEach(({ oscillator }) => {
+    try {
+      oscillator.stop();
+    } catch {
+      // 이미 멈춘 소리는 다시 멈출 수 없습니다.
+    }
+  });
+  state.audioNodes = [];
+  document.querySelectorAll(".note-card").forEach((card) => card.classList.remove("playing"));
+  document.querySelectorAll(".money-row span").forEach((chord) => chord.classList.remove("active"));
+}
+
+function getGroupData() {
+  const selectedVariationIndex = getSelectedVariationIndex();
+  return {
+    name: groupNameInput?.value.trim() || "",
+    members: groupMembersInput?.value.trim() || "",
+    motifs: groupMotifInputs.map((field) => field.value.trim()),
+    decision: currentGroupMotifText(),
+    reason: groupReasonInput?.value.trim() || "",
+    selectedVariationIndex,
+    variationOpinion: variationOpinionInput.value.trim(),
+  };
+}
+
+function applyGroupData(group) {
+  const safeGroup = group && typeof group === "object" ? group : {};
+  if (groupNameInput) groupNameInput.value = typeof safeGroup.name === "string" ? safeGroup.name : "";
+  if (groupMembersInput) groupMembersInput.value = typeof safeGroup.members === "string" ? safeGroup.members : "";
+  groupMotifInputs.forEach((field, index) => {
+    field.value = Array.isArray(safeGroup.motifs) && typeof safeGroup.motifs[index] === "string" ? safeGroup.motifs[index] : "";
+  });
+  if (groupDecisionInput) groupDecisionInput.value = typeof safeGroup.decision === "string" ? safeGroup.decision : "";
+  if (groupReasonInput) groupReasonInput.value = typeof safeGroup.reason === "string" ? safeGroup.reason : "";
+  selectedVariationIndexInput.value = Number.isInteger(safeGroup.selectedVariationIndex) ? String(safeGroup.selectedVariationIndex) : "";
+  variationOpinionInput.value = typeof safeGroup.variationOpinion === "string" ? safeGroup.variationOpinion : "";
+}
+
+function groupWorkToText() {
+  const group = getGroupData();
+  const lines = [];
+  if (group.decision) lines.push(`원 모티브: ${group.decision}`);
+  const variations = buildSelectedMotifVariations();
+  const selectedVariation = group.selectedVariationIndex === null ? null : variations[group.selectedVariationIndex];
+  if (selectedVariation) lines.push(`선택 멜로디 변화: ${selectedVariation.title}`);
+  if (group.variationOpinion) lines.push(`멜로디 변화 의견: ${group.variationOpinion.replace(/\n+/g, " ")}`);
+  return lines.join("\n");
+}
+
+function melodyToText() {
+  if (state.melody.length === 0) return "";
+  const target = Number(targetBeats.value);
+  const melody = state.melody.map((note) => `${note.solfege}${durationSymbol(note.duration)}`).join(" - ");
+  const motifInfo = analyzeOpeningMotif();
+  const motifText = motifInfo.hasDevelopment ? `음악 씨앗 발전 있음 (${motifInfo.label})` : `음악 씨앗 반복/변형 더 만들기 (${motifInfo.label || "아직 없음"})`;
+  const groupText = groupWorkToText();
+  return `${groupText ? `${groupText}\n` : ""}박자: ${TIME_SIGNATURE_LABEL}\n길이: ${targetLengthText(target)}\n영감: ${getInspirationProfile().label}\n화음진행: ${getMoneyProgression().label} (${moneyChordText()})\n음악 씨앗: ${motifText}\n멜로디: ${melody}`;
+}
+
+function renderScorePreview() {
+  if (state.melody.length === 0) {
+    scorePreview.innerHTML = `<div class="score-empty">멜로디를 만들면 여기에 악보가 표시됩니다.</div>`;
+    return;
+  }
+  scorePreview.innerHTML = buildScoreSvg(state.melody, Number(targetBeats.value));
+}
+
+function buildScoreSvg(melody, target, title = "멜로디 악보") {
+  const total = melody.reduce((sum, note) => sum + note.duration, 0);
+  const scoreBeats = Math.max(target, Math.ceil(total / BEATS_PER_MEASURE) * BEATS_PER_MEASURE, BEATS_PER_MEASURE);
+  const beatWidth = 52;
+  const width = Math.max(620, scoreBeats * beatWidth + 138);
+  const height = 184;
+  const staffLeft = 92;
+  const staffRight = width - 28;
+  const staffTop = 44;
+  const lineGap = 12;
+  const staffBottom = staffTop + lineGap * 4;
+  const beatToX = (beat) => staffLeft + ((staffRight - staffLeft) * beat) / Math.max(scoreBeats, 1);
+  const lines = Array.from({ length: 5 }, (_, index) => {
+    const y = staffTop + index * lineGap;
+    return `<line x1="${staffLeft}" y1="${y}" x2="${staffRight}" y2="${y}" stroke="#27313a" stroke-width="1.4" />`;
+  }).join("");
+  const barLines = [];
+  for (let beat = 0; beat <= scoreBeats; beat += BEATS_PER_MEASURE) {
+    const x = beatToX(beat);
+    const boundary = beat === 0 || beat === scoreBeats;
+    barLines.push(`<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffBottom}" stroke="${boundary ? "#27313a" : "#b46f16"}" stroke-width="${boundary ? 1.7 : 1.15}" />`);
+  }
+  let cursor = 0;
+  const notes = melody.map((note, index) => {
+    const x = beatToX(cursor + note.duration / 2);
+    cursor += note.duration;
+    return note.type === "rest"
+      ? renderScoreRest(note, x, staffTop + lineGap * 2, index)
+      : renderScoreNote(note, x, scoreYForNote(note.id), index);
+  }).join("");
+
+  return `
+    <svg class="score-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="오선 악보 미리보기" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="${width}" height="${height}" fill="#fffdf8" />
+      <text x="18" y="92" font-size="48" font-family="Georgia, serif" fill="#17222b">𝄞</text>
+      <text x="68" y="68" text-anchor="middle" font-size="22" font-weight="900" fill="#17222b">4</text>
+      <text x="68" y="94" text-anchor="middle" font-size="22" font-weight="900" fill="#17222b">4</text>
+      ${lines}
+      ${barLines.join("")}
+      ${notes}
+      <text x="${staffLeft}" y="24" font-size="15" font-weight="800" fill="#17222b">${escapeSvg(title)}</text>
+      <text x="${staffRight - 168}" y="24" font-size="13" font-weight="700" fill="#5a6671">${TIME_SIGNATURE_LABEL} · ${escapeSvg(targetLengthText(target))}</text>
+    </svg>
+  `;
+}
+
+function renderScoreNote(note, x, y, index) {
+  const stemUp = y > 68;
+  const stemX = stemUp ? x + 8 : x - 8;
+  const stemEnd = stemUp ? y - 42 : y + 42;
+  const fill = note.duration === 2 ? "#fffdf8" : "#17222b";
+  const flag = note.duration === 0.5
+    ? stemUp
+      ? `<path d="M ${stemX} ${stemEnd} q 18 8 7 24" fill="none" stroke="#17222b" stroke-width="2" stroke-linecap="round" />`
+      : `<path d="M ${stemX} ${stemEnd} q -18 -8 -7 -24" fill="none" stroke="#17222b" stroke-width="2" stroke-linecap="round" />`
+    : "";
+  const ledger = note.id === "C4"
+    ? `<line x1="${x - 15}" y1="${y}" x2="${x + 15}" y2="${y}" stroke="#27313a" stroke-width="1.2" />`
+    : "";
+  return `
+    <g class="score-note" data-index="${index}">
+      ${ledger}
+      <ellipse cx="${x}" cy="${y}" rx="9" ry="6.5" transform="rotate(-18 ${x} ${y})" fill="${fill}" stroke="#17222b" stroke-width="2" />
+      <line x1="${stemX}" y1="${y}" x2="${stemX}" y2="${stemEnd}" stroke="#17222b" stroke-width="2" />
+      ${flag}
+      <text x="${x}" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#0d6c77">${escapeSvg(note.solfege)}</text>
+      <text x="${x}" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6671">${scoreDurationText(note.duration)}</text>
+    </g>
+  `;
+}
+
+function renderScoreRest(note, x, y, index) {
+  return `
+    <g class="score-note" data-index="${index}">
+      <rect x="${x - 8}" y="${y - 5}" width="16" height="8" fill="#17222b" />
+      <text x="${x}" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#0d6c77">쉼</text>
+      <text x="${x}" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6671">${scoreDurationText(note.duration)}</text>
+    </g>
+  `;
+}
+
+function scoreYForNote(noteId) {
+  const notePositionCorrection = 0;
+  const positions = {
+    C4: 104,
+    D4: 98,
+    E4: 92,
+    F4: 86,
+    G4: 80,
+    A4: 74,
+    B4: 68,
+    C5: 62,
+  };
+  return (positions[noteId] || 92) + notePositionCorrection;
+}
+
+function scoreDurationText(duration) {
+  if (duration === 0.5) return "반박";
+  if (duration === 2) return "2박";
+  return "1박";
+}
+
+function escapeSvg(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function saveMelody() {
+  try {
+    localStorage.setItem("pentatonicMelodyCards", JSON.stringify({
+      melody: state.melody,
+      selectedNotes: state.selectedNoteIds,
+      target: targetBeats.value,
+      style: state.selectedStyle,
+      progression: state.selectedProgression,
+      seedShape: state.selectedSeedShape,
+      seedLength: seedLength.value,
+      passing: passingMode.checked,
+      pad: padMode.checked,
+      padSound: padSound.value,
+      repeat: repeatMode.checked,
+      group: getGroupData(),
+    }));
+  } catch {
+    // 저장 공간을 사용할 수 없는 브라우저에서도 작곡은 계속할 수 있습니다.
+  }
+}
+
+function loadSavedMelody() {
+  try {
+    const saved = JSON.parse(localStorage.getItem("pentatonicMelodyCards") || "{}");
+    if (Array.isArray(saved.melody)) state.melody = saved.melody;
+    if (Array.isArray(saved.selectedNotes)) {
+      state.selectedNoteIds = saved.selectedNotes
+        .filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId))
+        .slice(0, MAX_SEED_NOTES);
+    }
+    if (targetBeatOptions().map(String).includes(saved.target)) targetBeats.value = saved.target;
+    if (INSPIRATION_PROFILES[saved.style]) state.selectedStyle = saved.style;
+    if (CHORD_PROGRESSIONS[saved.progression]) state.selectedProgression = saved.progression;
+    if (isValidSeedShape(saved.seedShape)) state.selectedSeedShape = saved.seedShape;
+    if (isValidSeedLength(saved.seedLength)) seedLength.value = saved.seedLength;
+    state.selectedNoteIds = state.selectedNoteIds.slice(0, selectedSeedTargetLength());
+    if (typeof saved.passing === "boolean") passingMode.checked = saved.passing;
+    if (typeof saved.pad === "boolean") padMode.checked = saved.pad;
+    if (saved.padSound === "organ" || saved.padSound === "strings") padSound.value = saved.padSound;
+    if (typeof saved.repeat === "boolean") repeatMode.checked = saved.repeat;
+    applyGroupData(saved.group);
+  } catch {
+    state.melody = [];
+  }
+}
+
+function durationLabel(duration) {
+  if (duration === 0.5) return "반 박";
+  if (duration === 2) return "두 박";
+  return "한 박";
+}
+
+function durationSymbol(duration) {
+  if (duration === 0.5) return "♪";
+  if (duration === 2) return "𝅗𝅥";
+  return "♩";
+}
+
+function formatBeat(value) {
+  return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function showToast(message) {
+  document.querySelector(".toast")?.remove();
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  window.setTimeout(() => toast.remove(), 1700);
+}
+
+init();
+
+</script>
+  </body>
+</html>
