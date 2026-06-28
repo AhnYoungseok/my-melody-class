@@ -1929,13 +1929,17 @@ textarea.hidden-textarea {
           <div class="money-panel" aria-labelledby="moneyTitle">
             <div class="money-heading">
               <span id="moneyTitle">화음진행</span>
-              <small>진행을 고르면 배경 화음과 어울리는 느낌이 바뀝니다.</small>
+              <small>다장조의 C, Dm, Em, F, G, Am, Bdim 전체를 사용할 수 있습니다.</small>
             </div>
             <div id="moneyButtons" class="money-buttons" role="group" aria-label="화음진행 선택">
               <button class="money-btn active" data-progression="pop" type="button">기본 팝</button>
               <button class="money-btn" data-progression="brightLoop" type="button">밝은 순환</button>
               <button class="money-btn" data-progression="emotional" type="button">감성 시작</button>
               <button class="money-btn" data-progression="lift" type="button">올라가는 느낌</button>
+              <button class="money-btn" data-progression="diatonic" type="button">다장조 전체</button>
+              <button class="money-btn" data-progression="stepUp" type="button">차례가기</button>
+              <button class="money-btn" data-progression="stepDown" type="button">내려가기</button>
+              <button class="money-btn" data-progression="circle" type="button">5도 순환</button>
             </div>
             <div id="moneyRow" class="money-row" aria-label="선택한 화음진행"></div>
 
@@ -2137,9 +2141,12 @@ const SEED_SHAPE_LABELS = {
 const CORE_IDS = ["C4", "D4", "E4", "G4", "A4", "C5"];
 const CHORD_LIBRARY = {
   C: { name: "C", safe: ["C4", "E4", "G4", "C5"] },
-  G: { name: "G", safe: ["G4", "D4"] },
+  Dm: { name: "Dm", safe: ["D4", "F4", "A4"] },
+  Em: { name: "Em", safe: ["E4", "G4", "B4"] },
+  F: { name: "F", safe: ["F4", "A4", "C4", "C5"] },
+  G: { name: "G", safe: ["G4", "B4", "D4"] },
   Am: { name: "Am", safe: ["A4", "C4", "E4", "C5"] },
-  F: { name: "F", safe: ["A4", "C4", "C5"] },
+  Bdim: { name: "Bdim", safe: ["B4", "D4", "F4"] },
 };
 const CHORD_PROGRESSIONS = {
   pop: {
@@ -2158,12 +2165,31 @@ const CHORD_PROGRESSIONS = {
     label: "올라가는 느낌",
     chords: ["F", "G", "C", "Am"],
   },
+  diatonic: {
+    label: "다장조 전체",
+    chords: ["C", "Dm", "Em", "F", "G", "Am", "Bdim"],
+  },
+  stepUp: {
+    label: "차례가기",
+    chords: ["C", "Dm", "Em", "F", "G", "Am", "Bdim", "C"],
+  },
+  stepDown: {
+    label: "내려가기",
+    chords: ["C", "Bdim", "Am", "G", "F", "Em", "Dm", "C"],
+  },
+  circle: {
+    label: "5도 순환",
+    chords: ["C", "F", "Bdim", "Em", "Am", "Dm", "G", "C"],
+  },
 };
 const CHORD_PAD_NOTES = {
   C: [130.81, 164.81, 196.0],
+  Dm: [146.83, 174.61, 220.0],
+  Em: [164.81, 196.0, 246.94],
+  F: [174.61, 220.0, 261.63],
   G: [196.0, 246.94, 293.66],
   Am: [220.0, 261.63, 329.63],
-  F: [174.61, 220.0, 261.63],
+  Bdim: [246.94, 293.66, 349.23],
 };
 const MELODY_VOLUME = 1.15;
 const PREVIEW_VOLUME = 1.05;
