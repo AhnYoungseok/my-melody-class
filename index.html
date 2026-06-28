@@ -2087,7 +2087,7 @@ const NOTES = [
   { id: "G4", solfege: "솔", pitch: "G4", freq: 392.0, type: "core", degree: 5 },
   { id: "A4", solfege: "라", pitch: "A4", freq: 440.0, type: "core", degree: 6 },
   { id: "B4", solfege: "시", pitch: "B4", freq: 493.88, type: "passing", degree: 7 },
-  { id: "C5", solfege: "높은 도", pitch: "C5", freq: 523.25, type: "core", degree: 8 },
+  { id: "C5", solfege: "도′", pitch: "C5", freq: 523.25, type: "core", degree: 8 },
   { id: "REST", solfege: "쉼", pitch: "rest", freq: null, type: "rest", degree: null },
 ];
 
@@ -2527,12 +2527,12 @@ function renderNoteButtons() {
 
 function keyboardKeyLabel(note) {
   if (note.id === "REST") return "쉼표";
-  return note.id === "C5" ? "도" : note.solfege;
+  return note.id === "C5" ? "도′" : note.solfege;
 }
 
 function keyboardKeyDetail(note) {
   if (note.id === "REST") return "쉼";
-  return note.id === "C5" ? "높은 도" : note.pitch;
+  return note.id === "C5" ? "C5" : note.pitch;
 }
 
 function addSeedSourceNote(note) {
@@ -2660,7 +2660,8 @@ function moveSelectedNote(direction) {
 }
 
 function toMelodyNote(note, duration) {
-  return { ...note, duration: normalizeDuration(duration) };
+  const canonicalNote = NOTE_BY_ID[note?.id] || note;
+  return { ...canonicalNote, duration: normalizeDuration(duration) };
 }
 
 function normalizeDuration(duration, fallback = DEFAULT_NOTE_DURATION) {
@@ -3396,7 +3397,7 @@ function extractVariationBaseText(text) {
   if (!firstChunk || firstChunk.includes("-")) return firstChunk;
   const tokens = firstChunk.split(/\s+/).filter(Boolean);
   if (tokens.length <= 1) return firstChunk;
-  const noteWordPattern = /^(높은\s*도|도|레|미|파|솔|라|시|쉼)$/;
+  const noteWordPattern = /^(높은\s*도|도′|도|레|미|파|솔|라|시|쉼)$/;
   return tokens.every((token) => noteWordPattern.test(token)) ? firstChunk : tokens[0];
 }
 
@@ -3663,7 +3664,7 @@ function applyOpinionToVariation(notes, opinionText) {
 }
 
 function noteIdFromKorean(text) {
-  const match = text.match(/높은\s*도|도|레|미|파|솔|라|시|쉼/);
+  const match = text.match(/높은\s*도|도′|도|레|미|파|솔|라|시|쉼/);
   if (!match) return null;
   const compact = match[0].replace(/\s+/g, "");
   return {
@@ -3675,6 +3676,7 @@ function noteIdFromKorean(text) {
     라: "A4",
     시: "B4",
     높은도: "C5",
+    "도′": "C5",
     쉼: "REST",
   }[compact] || null;
 }
@@ -3770,7 +3772,7 @@ function currentGroupMotifText() {
 }
 
 function parseGroupMotifText(text) {
-  const matches = text.match(/높은\s*도|도|레|미|파|솔|라|시|쉼/g) || [];
+  const matches = text.match(/높은\s*도|도′|도|레|미|파|솔|라|시|쉼/g) || [];
   const ids = matches.map((name) => {
     const compact = name.replace(/\s+/g, "");
     return {
@@ -3782,6 +3784,7 @@ function parseGroupMotifText(text) {
       라: "A4",
       시: "B4",
       높은도: "C5",
+      "도′": "C5",
       쉼: "REST",
     }[compact];
   }).filter(Boolean);
@@ -4194,7 +4197,7 @@ function getPassingHint(previous, remaining) {
 
   const resolvePassing = {
     F4: { nextId: "G4", title: "파 다음은 솔로 풀어 주세요.", detail: "파는 미와 솔 사이를 지나갈 때 가장 자연스럽습니다." },
-    B4: { nextId: "C5", title: "시 다음은 높은 도로 풀어 주세요.", detail: "시는 라와 높은 도 사이를 지나갈 때 가장 자연스럽습니다." },
+    B4: { nextId: "C5", title: "시 다음은 도′로 풀어 주세요.", detail: "시는 라와 도′ 사이를 지나갈 때 가장 자연스럽습니다." },
   };
   if (resolvePassing[previous.id]) {
     const hint = resolvePassing[previous.id];
@@ -4213,8 +4216,8 @@ function getPassingHint(previous, remaining) {
   const passingStarts = {
     E4: { passId: "F4", nextId: "G4", detail: "미에서 솔로 가까이 이어가면 자연스럽습니다." },
     G4: { passId: "F4", nextId: "E4", detail: "솔-파-미로 내려오면 파가 자연스럽습니다." },
-    A4: { passId: "B4", nextId: "C5", detail: "라-시-높은 도로 지나가면 시가 자연스럽습니다." },
-    C5: { passId: "B4", nextId: "A4", detail: "높은 도-시-라로 내려오면 시가 자연스럽습니다." },
+    A4: { passId: "B4", nextId: "C5", detail: "라-시-도′로 지나가면 시가 자연스럽습니다." },
+    C5: { passId: "B4", nextId: "A4", detail: "도′-시-라로 내려오면 시가 자연스럽습니다." },
   };
   const hint = passingStarts[previous.id];
   if (!hint || state.hintStep % 3 !== 1) return null;
@@ -5097,7 +5100,11 @@ function saveMelody() {
 function loadSavedMelody() {
   try {
     const saved = JSON.parse(localStorage.getItem("pentatonicMelodyCards") || "{}");
-    if (Array.isArray(saved.melody)) state.melody = saved.melody;
+    if (Array.isArray(saved.melody)) {
+      state.melody = saved.melody
+        .map((note) => NOTE_BY_ID[note?.id] ? toMelodyNote(NOTE_BY_ID[note.id], note.duration) : null)
+        .filter(Boolean);
+    }
     if (Array.isArray(saved.selectedNotes)) {
       state.selectedNoteIds = saved.selectedNotes
         .filter((noteId) => PENTATONIC_KEY_IDS.includes(noteId))
