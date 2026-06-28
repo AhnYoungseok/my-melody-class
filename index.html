@@ -946,7 +946,7 @@ button.active,
   align-content: start;
   gap: 7px;
   min-height: 220px;
-  margin: 0 0 16px;
+  margin: 0 0 10px;
   padding: 10px;
   overflow: hidden;
   background: #fff8ea;
@@ -1082,6 +1082,46 @@ button.active,
   z-index: 2;
   transform: none;
   box-shadow: inset 0 0 0 3px rgba(38, 122, 69, 0.42);
+}
+
+.duration-editor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: 0 0 14px;
+  padding: 9px;
+  background: #fffaf0;
+  border: 1px solid #efc26f;
+  border-radius: var(--radius);
+}
+
+.duration-editor-title {
+  color: #7c2d12;
+  font-weight: 900;
+}
+
+.duration-editor button {
+  min-width: 46px;
+  min-height: 38px;
+  padding: 7px 10px;
+  color: #7c2d12;
+  background: #ffffff;
+  border-color: #efc26f;
+}
+
+.duration-editor button.active {
+  color: #ffffff;
+  background: #d97706;
+  border-color: #92400e;
+}
+
+.duration-editor button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  transform: none;
+  box-shadow: none;
 }
 
 .remove-card {
@@ -1870,6 +1910,14 @@ textarea.hidden-textarea {
             </div>
           </div>
           <ol id="melodyBoard" class="melody-board" aria-live="polite"></ol>
+          <div id="durationEditor" class="duration-editor" aria-label="선택한 음표 길이 조정">
+            <span class="duration-editor-title">음표 길이</span>
+            <button id="durationShortenBtn" type="button" aria-label="선택한 음표 길이 줄이기">−</button>
+            <button type="button" data-duration-choice="0.5">반박</button>
+            <button type="button" data-duration-choice="1">1박</button>
+            <button type="button" data-duration-choice="2">2박</button>
+            <button id="durationLengthenBtn" type="button" aria-label="선택한 음표 길이 늘리기">＋</button>
+          </div>
           <div class="score-box">
             <div class="score-heading">
               <label id="scoreTitle">악보 변환</label>
@@ -1998,6 +2046,7 @@ const PAD_VOLUME = {
 const LOUD_MELODY_MULTIPLIER = 2.2;
 const LOUD_PAD_MULTIPLIER = 2.1;
 const DEFAULT_NOTE_DURATION = 1;
+const NOTE_DURATIONS = [0.5, 1, 2];
 const BEATS_PER_MEASURE = 4;
 const TIME_SIGNATURE_LABEL = "4/4";
 const RHYTHM_PATTERNS = {
@@ -2118,6 +2167,10 @@ const repeatMode = document.querySelector("#repeatMode");
 const loudModeBtn = document.querySelector("#loudModeBtn");
 const boardTitle = document.querySelector("#boardTitle");
 const melodyBoard = document.querySelector("#melodyBoard");
+const durationEditor = document.querySelector("#durationEditor");
+const durationShortenBtn = document.querySelector("#durationShortenBtn");
+const durationLengthenBtn = document.querySelector("#durationLengthenBtn");
+const durationChoiceButtons = Array.from(document.querySelectorAll("[data-duration-choice]"));
 const beatCount = document.querySelector("#beatCount");
 const beatTargetLabel = document.querySelector("#beatTargetLabel");
 const targetMeasureLabel = document.querySelector("#targetMeasureLabel");
@@ -2216,6 +2269,13 @@ function bindEvents() {
     const button = event.target.closest("[data-hint-note]");
     if (!button) return;
     insertHintNote(button.dataset.hintNote);
+  });
+  durationShortenBtn.addEventListener("click", () => adjustSelectedNoteDuration(-1));
+  durationLengthenBtn.addEventListener("click", () => adjustSelectedNoteDuration(1));
+  durationEditor.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-duration-choice]");
+    if (!button) return;
+    setSelectedNoteDuration(Number(button.dataset.durationChoice));
   });
   seedLength.addEventListener("change", () => {
     state.selectedNoteIds = state.selectedNoteIds.slice(0, selectedSeedTargetLength());
@@ -2438,6 +2498,56 @@ function normalizeDuration(duration, fallback = DEFAULT_NOTE_DURATION) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
+function durationIndex(duration) {
+  const normalized = normalizeDuration(duration);
+  const index = NOTE_DURATIONS.indexOf(normalized);
+  return index >= 0 ? index : NOTE_DURATIONS.indexOf(DEFAULT_NOTE_DURATION);
+}
+
+function selectedNote() {
+  return Number.isInteger(state.selectedCardIndex) ? state.melody[state.selectedCardIndex] : null;
+}
+
+function selectedNoteWithoutCurrentBeats() {
+  const note = selectedNote();
+  return totalBeats() - (note?.duration || 0);
+}
+
+function canUseDuration(duration) {
+  const target = Number(targetBeats.value);
+  return selectedNoteWithoutCurrentBeats() + duration <= target + 2;
+}
+
+function setSelectedNoteDuration(duration) {
+  const note = selectedNote();
+  if (!note) {
+    showToast("길이를 바꿀 음표를 먼저 선택하세요.");
+    return;
+  }
+  const nextDuration = normalizeDuration(duration);
+  if (!canUseDuration(nextDuration)) {
+    showToast("목표보다 너무 길어요. 다른 음표를 줄여 주세요.");
+    return;
+  }
+  state.melody[state.selectedCardIndex] = toMelodyNote(note, nextDuration);
+  saveMelody();
+  render();
+  previewNote(note, Math.min(nextDuration, 0.7));
+}
+
+function adjustSelectedNoteDuration(direction) {
+  const note = selectedNote();
+  if (!note) {
+    showToast("길이를 바꿀 음표를 먼저 선택하세요.");
+    return;
+  }
+  const nextIndex = Math.min(
+    NOTE_DURATIONS.length - 1,
+    Math.max(0, durationIndex(note.duration) + direction),
+  );
+  setSelectedNoteDuration(NOTE_DURATIONS[nextIndex]);
+}
+
 function undoNote() {
   if (state.selectedCardIndex !== null) {
     state.melody.splice(state.selectedCardIndex, 1);
@@ -2536,11 +2646,26 @@ function render() {
   renderHint();
   renderMotifWorkshop();
   renderLoudModeButton();
+  renderDurationEditor();
 }
 
 function renderLoudModeButton() {
   loudModeBtn.classList.toggle("active", state.loudMode);
   loudModeBtn.setAttribute("aria-pressed", String(state.loudMode));
+}
+
+function renderDurationEditor() {
+  const note = selectedNote();
+  const hasSelection = Boolean(note);
+  durationEditor.classList.toggle("disabled", !hasSelection);
+  durationShortenBtn.disabled = !hasSelection || durationIndex(note?.duration) <= 0;
+  durationLengthenBtn.disabled = !hasSelection || durationIndex(note?.duration) >= NOTE_DURATIONS.length - 1;
+  durationChoiceButtons.forEach((button) => {
+    const duration = Number(button.dataset.durationChoice);
+    button.disabled = !hasSelection || !canUseDuration(duration);
+    button.classList.toggle("active", hasSelection && normalizeDuration(note.duration) === duration);
+    button.setAttribute("aria-pressed", String(hasSelection && normalizeDuration(note?.duration) === duration));
+  });
 }
 
 function startPitchDrag(event, card, index) {
