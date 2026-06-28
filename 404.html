@@ -164,6 +164,326 @@ p {
   grid-column: 1 / -1;
 }
 
+.stage-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.stage-pill {
+  display: grid;
+  gap: 3px;
+  min-height: 62px;
+  padding: 9px 10px;
+  color: #33505f;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  font-weight: 900;
+}
+
+.stage-pill small {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.stage-pill.active {
+  color: #ffffff;
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+  box-shadow: 0 10px 24px rgba(13, 108, 119, 0.18);
+}
+
+.stage-pill.active small {
+  color: #dff8f4;
+}
+
+.lesson-note,
+.student-check,
+.teacher-mode,
+.presentation-panel,
+.health-panel,
+.score-tools,
+.rhythm-helper,
+.seed-recommend,
+.explain-list,
+.role-grid,
+.pmi-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.lesson-note,
+.student-check,
+.health-panel,
+.rhythm-helper,
+.seed-recommend,
+.explain-list,
+.teacher-mode,
+.presentation-panel {
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.lesson-note {
+  margin-bottom: 12px;
+  background: #f1fbf8;
+}
+
+.lesson-note strong,
+.student-check strong,
+.health-panel strong,
+.teacher-mode strong,
+.presentation-panel strong {
+  color: var(--accent-dark);
+}
+
+.tip-list,
+.health-list,
+.teacher-question-list,
+.example-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tip-list li,
+.health-list li,
+.teacher-question-list li,
+.example-list li {
+  padding: 8px 10px;
+  background: #f8fbff;
+  border: 1px solid #e3edf3;
+  border-radius: var(--radius);
+  color: var(--ink);
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.seed-recommend-buttons,
+.rhythm-buttons,
+.score-tools,
+.presentation-actions,
+.teacher-actions,
+.reflection-examples,
+.view-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.seed-recommend-buttons button,
+.rhythm-buttons button,
+.view-actions button {
+  flex: 1 1 130px;
+}
+
+.explain-list {
+  margin-top: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.explain-list p {
+  margin: 0;
+  padding: 9px 10px;
+  color: var(--ink);
+  background: #f8fbff;
+  border: 1px solid #e3edf3;
+  border-radius: var(--radius);
+  font-size: 0.92rem;
+  font-weight: 750;
+}
+
+.explain-list p.active {
+  color: #ffffff;
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.health-summary {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  background: #f8fbff;
+  border: 1px solid #dbe9f1;
+  border-radius: var(--radius);
+  line-height: 1.45;
+}
+
+.health-score {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  padding: 6px 9px;
+  color: #ffffff;
+  background: var(--accent-dark);
+  border-radius: 999px;
+  font-size: 0.88rem;
+  font-weight: 900;
+}
+
+.health-list li.good {
+  background: #ecfdf3;
+  border-color: #b7e3c8;
+}
+
+.health-list li.warn {
+  background: #fff8e6;
+  border-color: #f2d086;
+}
+
+.health-list li.try {
+  background: #eef3ff;
+  border-color: #cad7ff;
+}
+
+.teacher-mode {
+  grid-column: 1 / -1;
+  background: #f8fbff;
+}
+
+.teacher-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr 0.9fr;
+  gap: 12px;
+}
+
+.teacher-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.teacher-time {
+  display: grid;
+  gap: 6px;
+}
+
+.teacher-time span {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  background: #f7fafc;
+  border: 1px solid #e3edf3;
+  border-radius: var(--radius);
+  font-weight: 800;
+}
+
+.presentation-panel {
+  grid-column: 1 / -1;
+}
+
+.presentation-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+}
+
+.role-grid,
+.pmi-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.role-grid label,
+.pmi-grid label,
+.presentation-form label {
+  display: grid;
+  gap: 5px;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.role-grid input,
+.pmi-grid textarea,
+.presentation-form input,
+.presentation-form textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px;
+  color: var(--ink);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.presentation-form textarea,
+.pmi-grid textarea {
+  min-height: 86px;
+  resize: vertical;
+}
+
+.presentation-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  background: #fffdf8;
+  border: 1px solid #edd9a8;
+  border-radius: var(--radius);
+}
+
+.presentation-card h3 {
+  margin: 0;
+  text-align: left;
+}
+
+.presentation-card dl {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 6px 10px;
+  margin: 0;
+}
+
+.presentation-card dt {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.presentation-card dd {
+  margin: 0;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.score-view-large .score-preview,
+.score-view-presentation .score-preview {
+  overflow-x: auto;
+}
+
+.score-view-large .score-svg {
+  min-width: 980px;
+}
+
+.score-view-presentation .score-svg {
+  min-width: 1120px;
+}
+
+.big-class-mode {
+  font-size: 1.16rem;
+}
+
+.big-class-mode button {
+  min-height: 54px;
+  font-size: 1.05rem;
+}
+
+.big-class-mode .stage-pill {
+  min-height: 78px;
+}
+
+.big-class-mode .note-card {
+  min-height: 118px;
+}
+
 .panel-heading {
   display: flex;
   align-items: flex-start;
@@ -1699,16 +2019,26 @@ textarea.hidden-textarea {
 @media (max-width: 900px) {
   .topbar,
   .layout,
-  .guide-grid {
+  .guide-grid,
+  .teacher-grid,
+  .presentation-layout {
     grid-template-columns: 1fr;
   }
 
   .composer-panel,
   .board-panel,
   .group-panel,
-  .guide-panel {
+  .guide-panel,
+  .teacher-mode,
+  .presentation-panel {
     grid-column: 1;
     grid-row: auto;
+  }
+
+  .stage-strip,
+  .explain-list,
+  .pmi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .panel-heading {
@@ -1782,6 +2112,13 @@ textarea.hidden-textarea {
   .app-shell {
     width: min(100% - 18px, 1180px);
     padding-top: 14px;
+  }
+
+  .stage-strip,
+  .explain-list,
+  .role-grid,
+  .pmi-grid {
+    grid-template-columns: 1fr;
   }
 
   .panel {
@@ -1865,6 +2202,40 @@ textarea.hidden-textarea {
   }
 }
 
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  .composer-panel,
+  .teacher-mode,
+  .guide-panel,
+  .stage-strip,
+  .playback-panel,
+  .score-tools,
+  .variation-reflection-actions,
+  .presentation-actions {
+    display: none !important;
+  }
+
+  .app-shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .layout,
+  .presentation-layout {
+    display: block;
+  }
+
+  .panel,
+  .presentation-panel {
+    box-shadow: none;
+    border: 1px solid #cccccc;
+    break-inside: avoid;
+  }
+}
+
 </style>
   </head>
   <body>
@@ -1875,6 +2246,8 @@ textarea.hidden-textarea {
           <p class="hero-subtitle">음악 씨앗 만들기</p>
         </div>
       </header>
+
+      <nav id="lessonStages" class="stage-strip" aria-label="수업 단계"></nav>
 
       <main class="layout">
         <section class="panel composer-panel" aria-label="멜로디 만들기">
@@ -1909,6 +2282,28 @@ textarea.hidden-textarea {
             </div>
           </div>
 
+          <div class="lesson-note" aria-label="수업 안내">
+            <strong>오늘의 흐름</strong>
+            <ul class="tip-list">
+              <li>음악 씨앗은 처음에 3~5개의 음으로 시작해 보세요.</li>
+              <li>처음에는 2마디나 4마디로 시작하면 만들기 쉽습니다.</li>
+              <li>듣고 고치고 다시 들어 보며, 내가 만든 가락을 설명해 봅니다.</li>
+            </ul>
+          </div>
+
+          <div class="rhythm-helper" aria-labelledby="rhythmHelpTitle">
+            <strong id="rhythmHelpTitle">2단계: 리듬과 길이 정하기</strong>
+            <p>4/4박자에서는 한 마디에 4박이 들어갑니다. 8마디 이상은 충분히 연습한 뒤 도전해 보세요.</p>
+            <div id="rhythmButtons" class="rhythm-buttons" role="group" aria-label="리듬 도움말">
+              <button data-rhythm-tip="short" type="button">짧게 움직이는 리듬</button>
+              <button data-rhythm-tip="long" type="button">길게 이어지는 리듬</button>
+              <button data-rhythm-tip="rest" type="button">쉼표가 있는 리듬</button>
+              <button data-rhythm-tip="repeat" type="button">반복되는 리듬</button>
+              <button data-rhythm-tip="speech" type="button">말하듯이 흐르는 리듬</button>
+            </div>
+            <small id="rhythmTipText">처음에는 2마디나 4마디로 시작해 보세요.</small>
+          </div>
+
           <div class="style-panel" aria-labelledby="styleTitle">
             <div class="style-heading">
               <span id="styleTitle">장르·분위기</span>
@@ -1924,6 +2319,7 @@ textarea.hidden-textarea {
               <button class="style-btn" data-style="dance" type="button">신나는 댄스</button>
               <button class="style-btn" data-style="calm" type="button">차분한</button>
             </div>
+            <div id="styleExplain" class="explain-list" aria-label="장르와 분위기 설명"></div>
           </div>
 
           <div class="money-panel" aria-labelledby="moneyTitle">
@@ -1943,6 +2339,7 @@ textarea.hidden-textarea {
               <button class="money-btn" data-progression="circle" type="button">5도 순환</button>
             </div>
             <div id="moneyRow" class="money-row" aria-label="선택한 화음진행"></div>
+            <div id="chordExplain" class="explain-list" aria-label="화음진행 설명"></div>
 
           </div>
 
@@ -1951,6 +2348,21 @@ textarea.hidden-textarea {
             <div class="motif-copy">
               <strong id="motifMain">짧은 음악 씨앗을 먼저 만듭니다.</strong>
               <small id="motifGuide">건반으로 음을 고르고 씨앗을 심으면 멜로디가 자랍니다.</small>
+            </div>
+            <div class="seed-recommend" aria-labelledby="seedRecommendTitle">
+              <strong id="seedRecommendTitle">1단계: 음악 씨앗 고르기</strong>
+              <ul class="tip-list">
+                <li>도, 미, 솔처럼 안정적인 음으로 시작하면 만들기 쉽습니다.</li>
+                <li>라, 시, 도′를 넣으면 조금 더 특별한 느낌이 납니다.</li>
+                <li>너무 많은 음을 고르면 노래하기 어려울 수 있어요.</li>
+              </ul>
+              <div id="seedRecommendButtons" class="seed-recommend-buttons" role="group" aria-label="음악 씨앗 추천">
+                <button data-seed-recommend="easy" type="button">쉬운 씨앗 추천</button>
+                <button data-seed-recommend="bright" type="button">밝은 씨앗 추천</button>
+                <button data-seed-recommend="calm" type="button">차분한 씨앗 추천</button>
+                <button data-seed-recommend="recorder" type="button">리코더로 쉬운 씨앗 추천</button>
+                <button data-seed-recommend="sing" type="button">노래하기 쉬운 씨앗 추천</button>
+              </div>
             </div>
             <div class="motif-tools">
               <div class="seed-row">
@@ -2018,6 +2430,23 @@ textarea.hidden-textarea {
               <button id="clearBtn" class="danger-lite" type="button">전체 지우기</button>
             </div>
           </div>
+
+          <div class="student-check" aria-labelledby="studentCheckTitle">
+            <strong id="studentCheckTitle">4단계: 멜로디 심기 전 확인</strong>
+            <ul class="tip-list">
+              <li>이 멜로디는 부르기 쉬운가요?</li>
+              <li>같은 음이 너무 많이 반복되나요?</li>
+              <li>갑자기 너무 높아지는 부분이 있나요?</li>
+              <li>마지막 음이 안정적으로 끝나나요?</li>
+              <li>리코더로 연주할 수 있을까요?</li>
+            </ul>
+          </div>
+
+          <div class="health-panel" aria-labelledby="healthTitle">
+            <strong id="healthTitle">멜로디 건강 체크</strong>
+            <div id="healthSummary" class="health-summary" aria-live="polite"></div>
+            <ul id="healthList" class="health-list"></ul>
+          </div>
         </section>
 
         <section class="panel board-panel" aria-labelledby="boardTitle">
@@ -2055,6 +2484,15 @@ textarea.hidden-textarea {
               <label id="scoreTitle">악보 변환</label>
               <small>정간보 멜로디를 오선 악보로 봅니다.</small>
             </div>
+            <div class="score-tools" aria-label="악보 보기 도구">
+              <button id="largeJeongganBtn" type="button">정간보 크게 보기</button>
+              <button id="largeScoreBtn" type="button">오선보 크게 보기</button>
+              <button id="presentationScoreBtn" type="button">발표용 악보 보기</button>
+              <button id="printScoreBtn" type="button">인쇄용 간단 악보 보기</button>
+              <label class="switch"><input id="showSolfegeToggle" type="checkbox" checked><span>계이름 표시</span></label>
+              <label class="switch"><input id="showMeterToggle" type="checkbox" checked><span>박자 표시</span></label>
+              <label class="switch"><input id="showMeasureToggle" type="checkbox" checked><span>마디 번호</span></label>
+            </div>
             <div id="scorePreview" class="score-preview" aria-labelledby="scoreTitle"></div>
             <textarea id="melodyText" class="hidden-textarea" readonly tabindex="-1" aria-hidden="true"></textarea>
           </div>
@@ -2062,7 +2500,7 @@ textarea.hidden-textarea {
 
         <section class="panel group-panel" aria-labelledby="variationTitle">
           <h2 id="variationTitle">멜로디 변화 만들기</h2>
-          <p class="group-intro">위쪽 음악 씨앗을 원 모티브로 삼아 4가지 변형안을 듣고, 마음에 드는 변형을 골라 멜로디에 심습니다.</p>
+          <p class="group-intro">위쪽 음악 씨앗을 원 모티브로 삼아 8가지 멜로디 변화를 듣고, 마음에 드는 변화를 골라 멜로디에 심습니다.</p>
 
           <div class="variation-lab" aria-label="원 모티브 변형">
             <div id="variationSourcePreview" class="variation-source"></div>
@@ -2085,6 +2523,86 @@ textarea.hidden-textarea {
             </div>
           </div>
 
+        </section>
+
+        <section class="teacher-mode" aria-labelledby="teacherModeTitle">
+          <div class="panel-heading compact">
+            <div>
+              <h2 id="teacherModeTitle">교사용 수업 진행 모드</h2>
+              <p>40분 수업 흐름, 현재 단계, 발문을 한 화면에서 확인합니다.</p>
+            </div>
+            <div class="teacher-actions">
+              <button id="bigClassModeBtn" type="button" aria-pressed="false">큰 화면 모드</button>
+            </div>
+          </div>
+          <div class="teacher-grid">
+            <div class="teacher-card">
+              <strong>현재 단계</strong>
+              <div id="teacherCurrentStage" class="health-summary"></div>
+            </div>
+            <div class="teacher-card">
+              <strong>교사 발문</strong>
+              <ul id="teacherQuestions" class="teacher-question-list"></ul>
+            </div>
+            <div class="teacher-card">
+              <strong>40분 수업 시간 안내</strong>
+              <div class="teacher-time">
+                <span><b>음악 씨앗 만들기</b><em>5분</em></span>
+                <span><b>멜로디 심기</b><em>8분</em></span>
+                <span><b>변화 만들기</b><em>10분</em></span>
+                <span><b>악보 확인</b><em>5분</em></span>
+                <span><b>발표·성찰</b><em>10분</em></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="presentation-panel" aria-labelledby="presentationTitle">
+          <h2 id="presentationTitle">7단계: 발표와 성찰</h2>
+          <div class="presentation-layout">
+            <div class="presentation-form">
+              <label>내 멜로디 제목
+                <input id="songTitleInput" type="text" placeholder="예: 나의 첫 멜로디">
+              </label>
+              <label>친구에게 들려주고 싶은 느낌
+                <textarea id="presentationFeelingInput" placeholder="예: 밝고 씩씩한 느낌을 들려주고 싶어요."></textarea>
+              </label>
+              <label>가장 마음에 드는 부분
+                <textarea id="favoritePartInput" placeholder="예: 마지막에 도로 끝나는 부분이 안정적입니다."></textarea>
+              </label>
+              <label>다음에 고치고 싶은 점
+                <textarea id="nextTryInput" placeholder="예: 쉼표를 넣어 숨 쉴 자리를 만들고 싶습니다."></textarea>
+              </label>
+              <strong>우리 모둠 역할</strong>
+              <div class="role-grid">
+                <label>디렉터<input id="roleDirectorInput" type="text" placeholder="이름"></label>
+                <label>가락 담당<input id="roleMelodyInput" type="text" placeholder="이름"></label>
+                <label>리듬 담당<input id="roleRhythmInput" type="text" placeholder="이름"></label>
+                <label>화음 담당<input id="roleChordInput" type="text" placeholder="이름"></label>
+                <label>발표 담당<input id="rolePresenterInput" type="text" placeholder="이름"></label>
+                <label>기록 담당<input id="roleRecorderInput" type="text" placeholder="이름"></label>
+              </div>
+              <strong>PMI 성찰</strong>
+              <div class="pmi-grid">
+                <label>P 좋은 점<textarea id="pmiPlusInput" placeholder="반복되는 부분이 있어 기억에 남습니다."></textarea></label>
+                <label>M 아쉬운 점<textarea id="pmiMinusInput" placeholder="쉼표가 부족해 숨 쉴 곳이 적습니다."></textarea></label>
+                <label>I 새 생각<textarea id="pmiIdeaInput" placeholder="다음에는 리듬을 바꿔 보고 싶습니다."></textarea></label>
+              </div>
+              <div class="reflection-examples">
+                <button data-reflection-example="plus" type="button">좋은 점 예시 넣기</button>
+                <button data-reflection-example="minus" type="button">아쉬운 점 예시 넣기</button>
+                <button data-reflection-example="idea" type="button">새 생각 예시 넣기</button>
+              </div>
+            </div>
+            <div>
+              <div id="presentationCard" class="presentation-card" aria-live="polite"></div>
+              <div class="presentation-actions">
+                <button id="copyPresentationBtn" class="primary-lite" type="button">발표 카드 복사</button>
+                <button id="copyReflectionBtn" type="button">성찰 내용 복사</button>
+                <button id="copyMelodyInfoBtn" type="button">멜로디 정보 복사</button>
+              </div>
+            </div>
+          </div>
         </section>
 
         <aside class="panel guide-panel" aria-labelledby="guideTitle">
@@ -2187,6 +2705,83 @@ const CHORD_PROGRESSIONS = {
     label: "5도 순환",
     chords: ["C", "F", "Bdim", "Em", "Am", "Dm", "G", "C"],
   },
+};
+
+const LESSON_STAGES = [
+  { title: "1단계", label: "음악 씨앗", short: "음 고르기" },
+  { title: "2단계", label: "리듬·길이", short: "4/4박자" },
+  { title: "3단계", label: "분위기·화음", short: "어울림" },
+  { title: "4단계", label: "멜로디 심기", short: "가락 만들기" },
+  { title: "5단계", label: "멜로디 변화", short: "반복과 변화" },
+  { title: "6단계", label: "악보·발표", short: "정리하기" },
+];
+
+const STYLE_EXPLANATIONS = {
+  bright: "밝은 동요: 친구들과 함께 부르기 좋은 느낌",
+  play: "놀이·행진: 발걸음처럼 씩씩한 느낌",
+  lullaby: "자장가: 조용하고 부드러운 느낌",
+  folk: "민요: 우리 가락처럼 자연스러운 느낌",
+  pop: "팝 씨앗: 요즘 노래처럼 익숙한 느낌",
+  jazz: "재즈 스윙: 통통 튀고 흔들리는 느낌",
+  dance: "신나는 댄스: 몸이 움직이고 싶은 느낌",
+  calm: "차분한: 마음을 가라앉히는 느낌",
+};
+
+const CHORD_EXPLANATIONS = {
+  melodyFit: "멜로디 맞춤: 내가 만든 음에 맞춰 화음을 자동으로 고릅니다.",
+  pop: "기본 팝: 가장 익숙하고 편안한 느낌",
+  brightLoop: "밝은 순환: 밝고 따뜻하게 이어지는 느낌",
+  emotional: "감성 시작: 조금 슬프거나 생각나는 느낌",
+  lift: "올라가는 느낌: 점점 힘이 생기는 느낌",
+  diatonic: "다장조 전체: C부터 Bdim까지 넓게 써 보는 느낌",
+  stepUp: "차례가기: 화음이 계단처럼 올라가는 느낌",
+  stepDown: "내려가기: 차분하게 마무리되는 느낌",
+  circle: "5도 순환: 조금 더 전문적인 음악 느낌",
+};
+
+const RHYTHM_TIPS = {
+  short: "짧은 음을 섞으면 가락이 또렷하게 움직입니다. 너무 빠르면 리코더가 어려울 수 있어요.",
+  long: "긴 음을 쓰면 노래처럼 숨이 이어지고 마침이 안정적으로 들립니다.",
+  rest: "쉼표는 숨 쉴 자리입니다. 한 번 쉬면 다음 음이 더 잘 들립니다.",
+  repeat: "같은 리듬을 다시 쓰면 친구들이 더 쉽게 기억합니다.",
+  speech: "말하듯이 길고 짧게 섞으면 자연스러운 가락이 됩니다.",
+};
+
+const SEED_RECOMMENDATIONS = {
+  easy: { notes: ["C4", "E4", "G4"], shape: "rise", label: "쉬운 씨앗" },
+  bright: { notes: ["C4", "D4", "E4", "G4"], shape: "rise", label: "밝은 씨앗" },
+  calm: { notes: ["G4", "E4", "D4"], shape: "fall", label: "차분한 씨앗" },
+  recorder: { notes: ["C4", "D4", "E4", "G4"], shape: "wave", label: "리코더로 쉬운 씨앗" },
+  sing: { notes: ["E4", "G4", "A4", "G4"], shape: "return", label: "노래하기 쉬운 씨앗" },
+};
+
+const TEACHER_QUESTIONS = {
+  seed: [
+    "처음에는 몇 개의 음으로 시작하면 좋을까요?",
+    "도, 미, 솔을 고르면 어떤 느낌이 날까요?",
+    "라나 시를 넣으면 느낌이 어떻게 달라질까요?",
+  ],
+  melody: [
+    "이 멜로디는 친구가 따라 부르기 쉬운가요?",
+    "숨 쉴 자리가 있나요?",
+    "마지막 음이 안정적으로 끝나나요?",
+  ],
+  variation: [
+    "원래 씨앗과 바뀐 씨앗은 어떤 점이 같나요?",
+    "어떤 변화가 가장 자연스럽게 들리나요?",
+    "친구가 부르기 쉬운 멜로디인가요?",
+  ],
+  presentation: [
+    "이 멜로디에서 가장 기억에 남는 부분은 어디인가요?",
+    "이 멜로디의 분위기를 한 단어로 말하면 무엇인가요?",
+    "다음 시간에 더 발전시킨다면 무엇을 바꾸고 싶나요?",
+  ],
+};
+
+const REFLECTION_EXAMPLES = {
+  plus: "반복되는 부분이 있어서 기억에 남습니다. 마지막 음이 안정적으로 끝납니다.",
+  minus: "쉼표가 없어서 숨 쉴 곳이 부족합니다. 음이 갑자기 많이 뛰는 부분은 조금 어렵습니다.",
+  idea: "다음에는 리듬을 바꿔 보고 싶습니다. 가사를 붙여 노래로 만들어 보고 싶습니다.",
 };
 const CHORD_PAD_NOTES = {
   C: [130.81, 164.81, 196.0],
@@ -2314,6 +2909,11 @@ const state = {
   audioContext: null,
   pianoWave: null,
   loudMode: false,
+  scoreView: "normal",
+  showSolfege: true,
+  showMeter: true,
+  showMeasure: true,
+  bigClassMode: false,
 };
 
 const PITCH_DRAG_STEP_PX = 30;
@@ -2323,6 +2923,7 @@ let pitchDragState = null;
 let suppressMelodyCardClickUntil = 0;
 
 const noteButtons = document.querySelector("#noteButtons");
+const lessonStages = document.querySelector("#lessonStages");
 const passingMode = document.querySelector("#passingMode");
 const padMode = document.querySelector("#padMode");
 const repeatMode = document.querySelector("#repeatMode");
@@ -2345,8 +2946,46 @@ const scorePreview = document.querySelector("#scorePreview");
 const targetBeats = document.querySelector("#targetBeats");
 const padSound = document.querySelector("#padSound");
 const styleButtons = document.querySelector("#styleButtons");
+const styleExplain = document.querySelector("#styleExplain");
 const moneyButtons = document.querySelector("#moneyButtons");
 const moneyRow = document.querySelector("#moneyRow");
+const chordExplain = document.querySelector("#chordExplain");
+const rhythmButtons = document.querySelector("#rhythmButtons");
+const rhythmTipText = document.querySelector("#rhythmTipText");
+const seedRecommendButtons = document.querySelector("#seedRecommendButtons");
+const healthSummary = document.querySelector("#healthSummary");
+const healthList = document.querySelector("#healthList");
+const largeJeongganBtn = document.querySelector("#largeJeongganBtn");
+const largeScoreBtn = document.querySelector("#largeScoreBtn");
+const presentationScoreBtn = document.querySelector("#presentationScoreBtn");
+const printScoreBtn = document.querySelector("#printScoreBtn");
+const showSolfegeToggle = document.querySelector("#showSolfegeToggle");
+const showMeterToggle = document.querySelector("#showMeterToggle");
+const showMeasureToggle = document.querySelector("#showMeasureToggle");
+const teacherCurrentStage = document.querySelector("#teacherCurrentStage");
+const teacherQuestions = document.querySelector("#teacherQuestions");
+const bigClassModeBtn = document.querySelector("#bigClassModeBtn");
+const presentationCard = document.querySelector("#presentationCard");
+const presentationFields = {
+  title: document.querySelector("#songTitleInput"),
+  feeling: document.querySelector("#presentationFeelingInput"),
+  favorite: document.querySelector("#favoritePartInput"),
+  next: document.querySelector("#nextTryInput"),
+  plus: document.querySelector("#pmiPlusInput"),
+  minus: document.querySelector("#pmiMinusInput"),
+  idea: document.querySelector("#pmiIdeaInput"),
+};
+const roleFields = {
+  director: document.querySelector("#roleDirectorInput"),
+  melody: document.querySelector("#roleMelodyInput"),
+  rhythm: document.querySelector("#roleRhythmInput"),
+  chord: document.querySelector("#roleChordInput"),
+  presenter: document.querySelector("#rolePresenterInput"),
+  recorder: document.querySelector("#roleRecorderInput"),
+};
+const copyPresentationBtn = document.querySelector("#copyPresentationBtn");
+const copyReflectionBtn = document.querySelector("#copyReflectionBtn");
+const copyMelodyInfoBtn = document.querySelector("#copyMelodyInfoBtn");
 const hintMain = document.querySelector("#hintMain");
 const hintDetail = document.querySelector("#hintDetail");
 const hintNotes = document.querySelector("#hintNotes");
@@ -2435,6 +3074,16 @@ function bindEvents() {
     if (!button) return;
     insertHintNote(button.dataset.hintNote);
   });
+  if (rhythmButtons) rhythmButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-rhythm-tip]");
+    if (!button) return;
+    rhythmTipText.textContent = RHYTHM_TIPS[button.dataset.rhythmTip] || RHYTHM_TIPS.short;
+  });
+  if (seedRecommendButtons) seedRecommendButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-seed-recommend]");
+    if (!button) return;
+    applySeedRecommendation(button.dataset.seedRecommend);
+  });
   addNoteButtons.addEventListener("click", (event) => {
     const button = event.target.closest("[data-add-note]");
     if (!button) return;
@@ -2489,6 +3138,46 @@ function bindEvents() {
   document.querySelector("#randomBtn").addEventListener("click", generateRandomMelody);
   document.querySelector("#undoBtn").addEventListener("click", undoNote);
   document.querySelector("#clearBtn").addEventListener("click", clearMelody);
+  if (largeJeongganBtn) largeJeongganBtn.addEventListener("click", () => setScoreView("jeonggan"));
+  if (largeScoreBtn) largeScoreBtn.addEventListener("click", () => setScoreView("score"));
+  if (presentationScoreBtn) presentationScoreBtn.addEventListener("click", () => setScoreView("presentation"));
+  if (printScoreBtn) printScoreBtn.addEventListener("click", () => window.print());
+  if (showSolfegeToggle) showSolfegeToggle.addEventListener("change", () => {
+    state.showSolfege = showSolfegeToggle.checked;
+    saveMelody();
+    renderScorePreview();
+  });
+  if (showMeterToggle) showMeterToggle.addEventListener("change", () => {
+    state.showMeter = showMeterToggle.checked;
+    saveMelody();
+    renderScorePreview();
+  });
+  if (showMeasureToggle) showMeasureToggle.addEventListener("change", () => {
+    state.showMeasure = showMeasureToggle.checked;
+    saveMelody();
+    renderScorePreview();
+  });
+  if (bigClassModeBtn) bigClassModeBtn.addEventListener("click", () => {
+    state.bigClassMode = !state.bigClassMode;
+    document.body.classList.toggle("big-class-mode", state.bigClassMode);
+    bigClassModeBtn.setAttribute("aria-pressed", String(state.bigClassMode));
+    saveMelody();
+  });
+  [...Object.values(presentationFields), ...Object.values(roleFields)].filter(Boolean).forEach((field) => {
+    field.addEventListener("input", () => {
+      saveMelody();
+      renderPresentationCard();
+      renderLessonStages();
+    });
+  });
+  document.querySelectorAll("[data-reflection-example]").forEach((button) => {
+    button.addEventListener("click", () => {
+      applyReflectionExample(button.dataset.reflectionExample);
+    });
+  });
+  if (copyPresentationBtn) copyPresentationBtn.addEventListener("click", () => copyText(presentationCardText(), "발표 카드를 복사했어요."));
+  if (copyReflectionBtn) copyReflectionBtn.addEventListener("click", () => copyText(reflectionText(), "성찰 내용을 복사했어요."));
+  if (copyMelodyInfoBtn) copyMelodyInfoBtn.addEventListener("click", () => copyText(melodyToText() || "아직 멜로디가 없습니다.", "멜로디 정보를 복사했어요."));
   window.addEventListener("pointermove", handlePitchDragMove, { passive: false });
   window.addEventListener("pointerup", finishPitchDrag);
   window.addEventListener("pointercancel", cancelPitchDrag);
@@ -2524,6 +3213,11 @@ function renderStyleButtons() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+  if (styleExplain) {
+    styleExplain.innerHTML = Object.entries(STYLE_EXPLANATIONS)
+      .map(([key, text]) => `<p class="${key === state.selectedStyle ? "active" : ""}">${escapeHtml(text)}</p>`)
+      .join("");
+  }
 }
 
 function renderMoneyTools() {
@@ -2537,6 +3231,11 @@ function renderMoneyButtons() {
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
+  if (chordExplain) {
+    chordExplain.innerHTML = Object.entries(CHORD_EXPLANATIONS)
+      .map(([key, text]) => `<p class="${key === state.selectedProgression ? "active" : ""}">${escapeHtml(text)}</p>`)
+      .join("");
+  }
 }
 
 function renderSeedShapeButtons() {
@@ -2806,6 +3505,7 @@ function undoNote() {
 }
 
 function clearMelody() {
+  if (state.melody.length > 0 && !window.confirm("현재 멜로디를 모두 지울까요? 이 작업은 되돌릴 수 없습니다.")) return;
   stopMelody();
   state.melody = [];
   state.selectedCardIndex = null;
@@ -2900,6 +3600,11 @@ function render() {
   renderLoudModeButton();
   renderDurationEditor();
   renderAddNotePanel();
+  renderLessonStages();
+  renderHealthCheck();
+  renderTeacherMode();
+  renderPresentationCard();
+  renderScoreOptions();
 }
 
 function renderLoudModeButton() {
@@ -2946,6 +3651,328 @@ function renderAddNotePanel() {
     `;
     addNoteButtons.appendChild(button);
   });
+}
+
+function renderLessonStages() {
+  if (!lessonStages) return;
+  const activeIndex = currentLessonStageIndex();
+  lessonStages.innerHTML = LESSON_STAGES.map((stage, index) => `
+    <div class="stage-pill ${index === activeIndex ? "active" : ""}">
+      <span>${escapeHtml(stage.title)} ${escapeHtml(stage.label)}</span>
+      <small>${escapeHtml(stage.short)}</small>
+    </div>
+  `).join("");
+}
+
+function currentLessonStageIndex() {
+  if (state.melody.length === 0 && state.selectedNoteIds.length === 0) return 0;
+  if (state.melody.length === 0) return 1;
+  if (state.melody.length > 0 && getSelectedVariationIndex() === null) return 3;
+  if (getSelectedVariationIndex() !== null && !hasReflectionText()) return 4;
+  return 5;
+}
+
+function renderTeacherMode() {
+  if (!teacherCurrentStage || !teacherQuestions) return;
+  const index = currentLessonStageIndex();
+  const stage = LESSON_STAGES[index] || LESSON_STAGES[0];
+  const questionKey = index <= 1 ? "seed" : index <= 3 ? "melody" : index === 4 ? "variation" : "presentation";
+  teacherCurrentStage.innerHTML = `
+    <span class="health-score">${escapeHtml(stage.title)}</span>
+    <strong>${escapeHtml(stage.label)}</strong>
+    <span>${escapeHtml(stage.short)} 단계입니다. 학생들이 듣고 설명할 시간을 주세요.</span>
+  `;
+  teacherQuestions.innerHTML = TEACHER_QUESTIONS[questionKey]
+    .map((question) => `<li>${escapeHtml(question)}</li>`)
+    .join("");
+  if (bigClassModeBtn) {
+    bigClassModeBtn.setAttribute("aria-pressed", String(state.bigClassMode));
+    document.body.classList.toggle("big-class-mode", state.bigClassMode);
+  }
+}
+
+function renderHealthCheck() {
+  if (!healthSummary || !healthList) return;
+  const analysis = analyzeMelodyHealth();
+  healthSummary.innerHTML = `
+    <span class="health-score">${escapeHtml(analysis.level)}</span>
+    <strong>${escapeHtml(analysis.summary)}</strong>
+    <span>${escapeHtml(analysis.next)}</span>
+  `;
+  healthList.innerHTML = analysis.items
+    .map((item) => `<li class="${item.kind}">${escapeHtml(item.text)}</li>`)
+    .join("");
+}
+
+function analyzeMelodyHealth() {
+  const notes = state.melody.filter((note) => note.type !== "rest");
+  const rests = state.melody.filter((note) => note.type === "rest");
+  if (notes.length === 0) {
+    return {
+      level: "준비 중",
+      summary: "먼저 건반에서 음을 골라 음악 씨앗을 만들어 보세요.",
+      next: "처음에는 도·미·솔처럼 안정적인 음 3개가 좋습니다.",
+      items: [
+        { kind: "try", text: "음악 씨앗을 3~5개 고른 뒤 씨앗 심기를 눌러 보세요." },
+        { kind: "try", text: "리코더나 노래로 확인하려면 너무 높은 음을 많이 쓰지 않는 것이 좋습니다." },
+      ],
+    };
+  }
+
+  const degrees = notes.map((note) => NOTE_BY_ID[note.id]?.degree).filter(Number.isFinite);
+  const range = Math.max(...degrees) - Math.min(...degrees);
+  const leaps = countLargeLeaps(notes);
+  const repeated = countImmediateRepeats(notes);
+  const finalId = notes[notes.length - 1]?.id;
+  const stableFinal = ["C4", "E4", "G4", "C5"].includes(finalId);
+  const total = totalBeats();
+  const fitsMeter = Math.abs(total % BEATS_PER_MEASURE) < 0.001;
+  const fastNotes = state.melody.filter((note) => note.duration === 0.5).length;
+  const recorderDifficulty = recorderDifficultyText(range, leaps, fastNotes, rests.length);
+  const singingDifficulty = singingDifficultyText(range, stableFinal, rests.length, repeated);
+  const score = [
+    range <= 5,
+    leaps <= 2,
+    repeated <= Math.max(2, Math.floor(notes.length / 2)),
+    stableFinal,
+    fitsMeter,
+    rests.length > 0 || notes.length <= 5,
+    !recorderDifficulty.startsWith("많이"),
+    !singingDifficulty.startsWith("조금"),
+  ].filter(Boolean).length;
+
+  const items = [
+    { kind: range <= 5 ? "good" : "warn", text: range <= 5 ? "음역이 넓지 않아 노래하기 쉽습니다." : "음역이 넓습니다. 가까운 음으로 조금 줄이면 더 부르기 쉽습니다." },
+    { kind: leaps <= 2 ? "good" : "warn", text: leaps <= 2 ? "갑자기 많이 뛰는 부분이 적어 자연스럽습니다." : "큰 도약이 많습니다. 중간 음을 넣어 이어 보세요." },
+    { kind: stableFinal ? "good" : "try", text: stableFinal ? "마지막 음이 안정적으로 들립니다." : "마지막을 도, 미, 솔 중 하나로 바꾸면 더 안정적입니다." },
+    { kind: rests.length > 0 ? "good" : "try", text: rests.length > 0 ? "쉼표가 있어 숨 쉴 자리가 있습니다." : "쉼표가 거의 없습니다. 중간에 한 번 쉬면 더 자연스럽습니다." },
+    { kind: fitsMeter ? "good" : "warn", text: fitsMeter ? "4/4박자 마디에 잘 맞습니다." : "마디 끝이 조금 어긋납니다. 음표 길이를 조정해 보세요." },
+    { kind: recorderDifficulty.startsWith("쉬움") ? "good" : "try", text: `리코더: ${recorderDifficulty}` },
+    { kind: singingDifficulty.startsWith("좋음") ? "good" : "try", text: `노래: ${singingDifficulty}` },
+  ];
+
+  return {
+    level: score >= 6 ? "좋아요" : score >= 4 ? "조금 다듬기" : "다음 시도",
+    summary: score >= 6
+      ? "이 멜로디는 수업 발표에 사용할 준비가 꽤 잘 되어 있습니다."
+      : "멜로디가 만들어졌습니다. 한두 부분을 고치면 더 자연스러워집니다.",
+    next: rests.length === 0
+      ? "다음 시도: 쉼표를 넣어 숨 쉴 자리를 만들어 보세요."
+      : "다음 시도: 마음에 드는 변화안을 골라 원래 씨앗과 비교해 보세요.",
+    items,
+  };
+}
+
+function countLargeLeaps(notes) {
+  let count = 0;
+  for (let index = 1; index < notes.length; index += 1) {
+    const before = NOTE_BY_ID[notes[index - 1].id]?.degree;
+    const after = NOTE_BY_ID[notes[index].id]?.degree;
+    if (Number.isFinite(before) && Number.isFinite(after) && Math.abs(after - before) >= 4) count += 1;
+  }
+  return count;
+}
+
+function countImmediateRepeats(notes) {
+  let count = 0;
+  for (let index = 1; index < notes.length; index += 1) {
+    if (notes[index].id === notes[index - 1].id) count += 1;
+  }
+  return count;
+}
+
+function recorderDifficultyText(range, leaps, fastNotes, restCount) {
+  if (range <= 5 && leaps <= 1 && fastNotes <= 3) return "쉬움. 손가락 이동이 크지 않아 천천히 연습하기 좋습니다.";
+  if (range <= 7 && leaps <= 3) return `조금 어려움. ${restCount === 0 ? "중간에 쉼표를 넣으면" : "천천히 나누어 연습하면"} 더 좋습니다.`;
+  return "많이 어려움. 큰 도약을 줄이고 짧은 음을 조금 줄여 보세요.";
+}
+
+function singingDifficultyText(range, stableFinal, restCount, repeated) {
+  if (range <= 5 && stableFinal && restCount > 0) return "좋음. 음역과 숨 쉴 자리가 노래하기에 알맞습니다.";
+  if (range <= 6 && stableFinal) return "좋음에 가까움. 중간에 쉼표를 하나 넣으면 더 자연스럽습니다.";
+  if (repeated > 4) return "조금 어려움. 같은 음이 너무 반복되어 말하듯 바꿔 보면 좋습니다.";
+  return "조금 어려움. 마지막 음과 음역을 한 번 더 확인해 보세요.";
+}
+
+function renderScoreOptions() {
+  if (showSolfegeToggle) showSolfegeToggle.checked = state.showSolfege;
+  if (showMeterToggle) showMeterToggle.checked = state.showMeter;
+  if (showMeasureToggle) showMeasureToggle.checked = state.showMeasure;
+  document.body.classList.toggle("score-view-large", state.scoreView === "score" || state.scoreView === "jeonggan");
+  document.body.classList.toggle("score-view-presentation", state.scoreView === "presentation");
+}
+
+function setScoreView(view) {
+  state.scoreView = state.scoreView === view ? "normal" : view;
+  saveMelody();
+  renderScorePreview();
+  renderScoreOptions();
+  if (view === "jeonggan") melodyBoard.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (view === "score" || view === "presentation") scorePreview.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function applySeedRecommendation(kind) {
+  const recommendation = SEED_RECOMMENDATIONS[kind] || SEED_RECOMMENDATIONS.easy;
+  state.selectedNoteIds = recommendation.notes.slice(0, MAX_SEED_NOTES);
+  state.selectedSeedShape = recommendation.shape;
+  seedLength.value = String(recommendation.notes.length);
+  saveMelody();
+  renderNoteButtons();
+  renderSeedShapeButtons();
+  renderMotifWorkshop();
+  renderGroupVariations();
+  renderLessonStages();
+  showToast(`${recommendation.label}을 준비했어요. 씨앗 심기를 눌러 들어 보세요.`);
+}
+
+function renderPresentationCard() {
+  if (!presentationCard) return;
+  const data = getPresentationData();
+  const title = data.title || "나의 멜로디";
+  const seedText = state.selectedNoteIds.length
+    ? state.selectedNoteIds.map((id) => NOTE_BY_ID[id]?.solfege).filter(Boolean).join(" - ")
+    : "아직 고르는 중";
+  const selectedVariation = selectedVariationTitle();
+  presentationCard.innerHTML = `
+    <h3>${escapeHtml(title)}</h3>
+    <dl>
+      <dt>음악 씨앗</dt><dd>${escapeHtml(seedText)}</dd>
+      <dt>분위기</dt><dd>${escapeHtml(getInspirationProfile().label)}</dd>
+      <dt>화음</dt><dd>${escapeHtml(getMoneyProgression().label)} (${escapeHtml(moneyChordText())})</dd>
+      <dt>멜로디 변화</dt><dd>${escapeHtml(selectedVariation || "아직 선택 전")}</dd>
+      <dt>마음에 드는 부분</dt><dd>${escapeHtml(data.favorite || "직접 적어 보세요.")}</dd>
+      <dt>들려주고 싶은 느낌</dt><dd>${escapeHtml(data.feeling || "직접 적어 보세요.")}</dd>
+      <dt>다음에 고칠 점</dt><dd>${escapeHtml(data.next || "직접 적어 보세요.")}</dd>
+      <dt>PMI</dt><dd>${escapeHtml(shortReflectionLine(data))}</dd>
+      <dt>모둠 역할</dt><dd>${escapeHtml(roleText() || "역할을 정해 보세요.")}</dd>
+    </dl>
+  `;
+}
+
+function getPresentationData() {
+  return {
+    title: presentationFields.title?.value.trim() || "",
+    feeling: presentationFields.feeling?.value.trim() || "",
+    favorite: presentationFields.favorite?.value.trim() || "",
+    next: presentationFields.next?.value.trim() || "",
+    plus: presentationFields.plus?.value.trim() || "",
+    minus: presentationFields.minus?.value.trim() || "",
+    idea: presentationFields.idea?.value.trim() || "",
+  };
+}
+
+function applyPresentationData(data) {
+  const safe = data && typeof data === "object" ? data : {};
+  Object.entries(presentationFields).forEach(([key, field]) => {
+    if (field) field.value = typeof safe[key] === "string" ? safe[key] : "";
+  });
+  Object.entries(roleFields).forEach(([key, field]) => {
+    if (field) field.value = safe.roles && typeof safe.roles[key] === "string" ? safe.roles[key] : "";
+  });
+}
+
+function collectPresentationData() {
+  return {
+    ...getPresentationData(),
+    roles: Object.fromEntries(Object.entries(roleFields).map(([key, field]) => [key, field?.value.trim() || ""])),
+  };
+}
+
+function hasReflectionText() {
+  const data = getPresentationData();
+  return Boolean(data.plus || data.minus || data.idea || data.favorite || data.next || data.feeling);
+}
+
+function selectedVariationTitle() {
+  const index = getSelectedVariationIndex();
+  if (index === null) return "";
+  const variation = buildSelectedMotifVariations()[index];
+  return variation?.title || "";
+}
+
+function shortReflectionLine(data) {
+  const parts = [];
+  if (data.plus) parts.push(`P ${data.plus}`);
+  if (data.minus) parts.push(`M ${data.minus}`);
+  if (data.idea) parts.push(`I ${data.idea}`);
+  return parts.join(" / ") || "좋은 점, 아쉬운 점, 새 생각을 적어 보세요.";
+}
+
+function roleText() {
+  const labels = {
+    director: "디렉터",
+    melody: "가락 담당",
+    rhythm: "리듬 담당",
+    chord: "화음 담당",
+    presenter: "발표 담당",
+    recorder: "기록 담당",
+  };
+  return Object.entries(roleFields)
+    .map(([key, field]) => field?.value.trim() ? `${labels[key]}: ${field.value.trim()}` : "")
+    .filter(Boolean)
+    .join(" / ");
+}
+
+function presentationCardText() {
+  const data = getPresentationData();
+  const title = data.title || "나의 멜로디";
+  const seedText = state.selectedNoteIds.length
+    ? state.selectedNoteIds.map((id) => NOTE_BY_ID[id]?.solfege).filter(Boolean).join("-")
+    : "아직 없음";
+  return [
+    `제목: ${title}`,
+    `분위기: ${getInspirationProfile().label}`,
+    `화음: ${getMoneyProgression().label} (${moneyChordText()})`,
+    `음악 씨앗: ${seedText}`,
+    `변화 방법: ${selectedVariationTitle() || "아직 선택 전"}`,
+    `좋은 점: ${data.plus || data.favorite || "직접 작성"}`,
+    `아쉬운 점: ${data.minus || "직접 작성"}`,
+    `새로운 생각: ${data.idea || data.next || "직접 작성"}`,
+    `역할: ${roleText() || "아직 없음"}`,
+  ].join("\n");
+}
+
+function reflectionText() {
+  const data = getPresentationData();
+  return [
+    `P 좋은 점: ${data.plus || "직접 작성"}`,
+    `M 아쉬운 점: ${data.minus || "직접 작성"}`,
+    `I 새 생각: ${data.idea || "직접 작성"}`,
+    `다음에 고치고 싶은 점: ${data.next || "직접 작성"}`,
+  ].join("\n");
+}
+
+function applyReflectionExample(kind) {
+  const text = REFLECTION_EXAMPLES[kind] || "";
+  const target = kind === "plus" ? presentationFields.plus : kind === "minus" ? presentationFields.minus : presentationFields.idea;
+  if (!target) return;
+  target.value = target.value.trim() ? `${target.value.trim()}\n${text}` : text;
+  saveMelody();
+  renderPresentationCard();
+  renderLessonStages();
+}
+
+async function copyText(text, successMessage) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast(successMessage);
+  } catch {
+    const helper = document.createElement("textarea");
+    helper.value = text;
+    helper.setAttribute("readonly", "");
+    helper.style.position = "fixed";
+    helper.style.left = "-9999px";
+    document.body.appendChild(helper);
+    helper.select();
+    try {
+      document.execCommand("copy");
+      showToast(successMessage);
+    } catch {
+      showToast("복사 권한이 막혔습니다. 내용을 선택해 직접 복사해 주세요.");
+    } finally {
+      helper.remove();
+    }
+  }
 }
 
 function dragStep(delta, stepPixels) {
@@ -3478,7 +4505,7 @@ function renderGroupVariations() {
   renderVariationSourcePreview(baseMotif);
   const variations = baseMotif.length >= 2 ? buildMotifVariations(baseMotif) : [];
   if (variations.length === 0) {
-    variationGrid.innerHTML = `<div class="variation-empty">위쪽 음악 씨앗이 2음 이상이면 4가지 멜로디 변화가 만들어집니다.</div>`;
+    variationGrid.innerHTML = `<div class="variation-empty">위쪽 음악 씨앗이 2음 이상이면 8가지 멜로디 변화가 만들어집니다.</div>`;
     selectedVariationIndexInput.value = "";
     renderSelectedVariationSummary([]);
     return;
@@ -3598,6 +4625,68 @@ function getSelectedVariationIndex() {
   if (selectedVariationIndexInput.value === "") return null;
   const index = Number(selectedVariationIndexInput.value);
   return Number.isInteger(index) && index >= 0 && index < 4 ? index : null;
+}
+
+function buildMotifVariations(motif) {
+  const seed = motif.slice(0, MAX_SEED_NOTES).map(cloneMotifNote);
+  const repeatedShape = [...seed, ...seed].map(cloneMotifNote);
+  const changedEnding = seed.map(cloneMotifNote);
+  changedEnding[changedEnding.length - 1] = noteWithId(variationMotifEnding(changedEnding[changedEnding.length - 1].id), changedEnding[changedEnding.length - 1].duration);
+  const rising = seed.map((note, index) => noteWithId(noteIdByDegree(Math.min(8, (NOTE_BY_ID[note.id]?.degree || 1) + Math.ceil(index / 2))), note.duration));
+  const falling = seed.map((note, index) => noteWithId(noteIdByDegree(Math.max(1, (NOTE_BY_ID[note.id]?.degree || 1) - Math.ceil(index / 2))), note.duration));
+  const rhythmic = seed.map((note, index) => cloneMotifNote(note, rhythmDurationForVariation(seed.length, index)));
+  const withRest = insertRestIntoMotif(seed);
+  const echo = buildEchoMotif(seed);
+  const questionAnswer = buildQuestionAnswerMotif(seed);
+  return [
+    { title: "반복하기", detail: "씨앗을 한 번 더 반복해 기억에 남게 만듭니다.", notes: repeatedShape },
+    { title: "마지막 음 바꾸기", detail: "끝나는 느낌을 다르게 만들어 봅니다.", notes: changedEnding },
+    { title: "올라가게 만들기", detail: "점점 밝아지거나 힘이 생기는 느낌을 만듭니다.", notes: rising },
+    { title: "내려가게 만들기", detail: "차분하거나 마무리되는 느낌을 만듭니다.", notes: falling },
+    { title: "리듬 바꾸기", detail: "같은 음이라도 리듬을 바꿔 새 느낌을 만듭니다.", notes: rhythmic },
+    { title: "쉼표 넣기", detail: "숨 쉴 자리를 만들어 자연스럽게 만듭니다.", notes: withRest },
+    { title: "메아리 만들기", detail: "앞부분을 따라 하는 느낌으로 이어 붙입니다.", notes: echo },
+    { title: "질문과 대답 만들기", detail: "앞부분은 질문처럼, 뒷부분은 안정적인 대답처럼 만듭니다.", notes: questionAnswer },
+  ];
+}
+
+function noteIdByDegree(degree) {
+  const found = PENTATONIC_KEY_IDS.find((noteId) => NOTE_BY_ID[noteId]?.degree === degree);
+  return found || "C4";
+}
+
+function insertRestIntoMotif(seed) {
+  const notes = seed.map(cloneMotifNote);
+  const insertAt = Math.max(1, Math.floor(notes.length / 2));
+  notes.splice(insertAt, 0, noteWithId("REST", 1));
+  return notes;
+}
+
+function buildEchoMotif(seed) {
+  const first = seed.slice(0, Math.max(2, Math.ceil(seed.length / 2))).map(cloneMotifNote);
+  const echo = first.map((note) => {
+    const degree = NOTE_BY_ID[note.id]?.degree;
+    const nextId = Number.isFinite(degree) ? noteIdByDegree(Math.max(1, degree - 1)) : note.id;
+    return noteWithId(nextId, note.duration);
+  });
+  return [...seed.map(cloneMotifNote), ...echo];
+}
+
+function buildQuestionAnswerMotif(seed) {
+  const question = seed.map(cloneMotifNote);
+  const answer = seed.map((note, index) => {
+    if (index === seed.length - 1) return noteWithId("C4", note.duration);
+    const degree = NOTE_BY_ID[note.id]?.degree;
+    const nextDegree = Number.isFinite(degree) ? Math.max(1, Math.min(8, degree + (index % 2 === 0 ? 1 : -1))) : 1;
+    return noteWithId(noteIdByDegree(nextDegree), note.duration);
+  });
+  return [...question, ...answer];
+}
+
+function getSelectedVariationIndex() {
+  if (selectedVariationIndexInput.value === "") return null;
+  const index = Number(selectedVariationIndexInput.value);
+  return Number.isInteger(index) && index >= 0 && index < 8 ? index : null;
 }
 
 function selectMotifVariation(index) {
@@ -5197,7 +6286,10 @@ function buildScoreSvg(melody, target, title = "멜로디 악보") {
   for (let beat = 0; beat <= scoreBeats; beat += BEATS_PER_MEASURE) {
     const x = beatToX(beat);
     const boundary = beat === 0 || beat === scoreBeats;
-    barLines.push(`<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffBottom}" stroke="${boundary ? "#27313a" : "#b46f16"}" stroke-width="${boundary ? 1.7 : 1.15}" />`);
+    const measureNumber = state.showMeasure && beat < scoreBeats
+      ? `<text x="${x + 6}" y="${staffBottom + 22}" font-size="11" font-weight="800" fill="#8a5c12">${Math.floor(beat / BEATS_PER_MEASURE) + 1}마디</text>`
+      : "";
+    barLines.push(`<line x1="${x}" y1="${staffTop}" x2="${x}" y2="${staffBottom}" stroke="${boundary ? "#27313a" : "#b46f16"}" stroke-width="${boundary ? 1.7 : 1.15}" />${measureNumber}`);
   }
   let cursor = 0;
   const notes = melody.map((note, index) => {
@@ -5218,7 +6310,7 @@ function buildScoreSvg(melody, target, title = "멜로디 악보") {
       ${barLines.join("")}
       ${notes}
       <text x="${staffLeft}" y="24" font-size="15" font-weight="800" fill="#17222b">${escapeSvg(title)}</text>
-      <text x="${staffRight - 168}" y="24" font-size="13" font-weight="700" fill="#5a6671">${TIME_SIGNATURE_LABEL} · ${escapeSvg(targetLengthText(target))}</text>
+      ${state.showMeter ? `<text x="${staffRight - 168}" y="24" font-size="13" font-weight="700" fill="#5a6671">${TIME_SIGNATURE_LABEL} · ${escapeSvg(targetLengthText(target))}</text>` : ""}
     </svg>
   `;
 }
@@ -5242,7 +6334,7 @@ function renderScoreNote(note, x, y, index) {
       <ellipse cx="${x}" cy="${y}" rx="9" ry="6.5" transform="rotate(-18 ${x} ${y})" fill="${fill}" stroke="#17222b" stroke-width="2" />
       <line x1="${stemX}" y1="${y}" x2="${stemX}" y2="${stemEnd}" stroke="#17222b" stroke-width="2" />
       ${flag}
-      <text x="${x}" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#0d6c77">${escapeSvg(note.solfege)}</text>
+      ${state.showSolfege ? `<text x="${x}" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#0d6c77">${escapeSvg(note.solfege)}</text>` : ""}
       <text x="${x}" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6671">${scoreDurationText(note.duration)}</text>
     </g>
   `;
@@ -5252,7 +6344,7 @@ function renderScoreRest(note, x, y, index) {
   return `
     <g class="score-note" data-index="${index}">
       <rect x="${x - 8}" y="${y - 5}" width="16" height="8" fill="#17222b" />
-      <text x="${x}" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#0d6c77">쉼</text>
+      ${state.showSolfege ? `<text x="${x}" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#0d6c77">쉼</text>` : ""}
       <text x="${x}" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#5a6671">${scoreDurationText(note.duration)}</text>
     </g>
   `;
@@ -5287,6 +6379,15 @@ function escapeSvg(value) {
     .replace(/"/g, "&quot;");
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function saveMelody() {
   try {
     localStorage.setItem("pentatonicMelodyCards", JSON.stringify({
@@ -5302,7 +6403,13 @@ function saveMelody() {
       padSound: padSound.value,
       repeat: repeatMode.checked,
       loudMode: state.loudMode,
+      scoreView: state.scoreView,
+      showSolfege: state.showSolfege,
+      showMeter: state.showMeter,
+      showMeasure: state.showMeasure,
+      bigClassMode: state.bigClassMode,
       group: getGroupData(),
+      presentation: collectPresentationData(),
     }));
   } catch {
     // 저장 공간을 사용할 수 없는 브라우저에서도 작곡은 계속할 수 있습니다.
@@ -5333,7 +6440,13 @@ function loadSavedMelody() {
     if (saved.padSound === "organ" || saved.padSound === "strings") padSound.value = saved.padSound;
     if (typeof saved.repeat === "boolean") repeatMode.checked = saved.repeat;
     if (typeof saved.loudMode === "boolean") state.loudMode = saved.loudMode;
+    if (["normal", "jeonggan", "score", "presentation"].includes(saved.scoreView)) state.scoreView = saved.scoreView;
+    if (typeof saved.showSolfege === "boolean") state.showSolfege = saved.showSolfege;
+    if (typeof saved.showMeter === "boolean") state.showMeter = saved.showMeter;
+    if (typeof saved.showMeasure === "boolean") state.showMeasure = saved.showMeasure;
+    if (typeof saved.bigClassMode === "boolean") state.bigClassMode = saved.bigClassMode;
     applyGroupData(saved.group);
+    applyPresentationData(saved.presentation);
   } catch {
     state.melody = [];
   }
