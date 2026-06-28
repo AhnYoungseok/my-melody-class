@@ -1136,6 +1136,61 @@ button.active,
   box-shadow: none;
 }
 
+.add-note-panel {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 10px;
+  background: #f2fbf8;
+  border: 1px solid #9fd9cf;
+  border-radius: var(--radius);
+}
+
+.add-note-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.add-note-head span {
+  color: #0f766e;
+  font-weight: 900;
+}
+
+.add-note-head small {
+  color: #315b57;
+  font-weight: 800;
+}
+
+.add-note-buttons {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.add-note-key {
+  display: grid;
+  min-height: 52px;
+  padding: 7px 5px;
+  color: #064e3b;
+  background: #ffffff;
+  border-color: #86d6ca;
+  border-radius: 6px;
+}
+
+.add-note-key strong {
+  font-size: 1.05rem;
+  line-height: 1.05;
+}
+
+.add-note-key small {
+  color: #0f766e;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
 .remove-card {
   position: absolute;
   top: 4px;
@@ -1656,7 +1711,8 @@ textarea.hidden-textarea {
     justify-content: flex-start;
   }
 
-  .note-grid {
+  .note-grid,
+  .add-note-buttons {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
@@ -1926,6 +1982,13 @@ textarea.hidden-textarea {
             <span class="duration-editor-title">음표 길이</span>
             <span id="durationEditorHint" class="duration-editor-hint">음표를 누른 채 왼쪽은 짧게, 오른쪽은 길게 밀어 보세요.</span>
           </div>
+          <div id="addNotePanel" class="add-note-panel" aria-label="여유 박자에 새 음표 추가" hidden>
+            <div class="add-note-head">
+              <span>새 음표 추가</span>
+              <small id="addNoteHint">여유 박자에 맞춰 들어갑니다.</small>
+            </div>
+            <div id="addNoteButtons" class="add-note-buttons" role="group" aria-label="새 음표로 추가할 음 선택"></div>
+          </div>
           <div class="score-box">
             <div class="score-heading">
               <label id="scoreTitle">악보 변환</label>
@@ -2179,6 +2242,9 @@ const boardTitle = document.querySelector("#boardTitle");
 const melodyBoard = document.querySelector("#melodyBoard");
 const durationEditor = document.querySelector("#durationEditor");
 const durationEditorHint = document.querySelector("#durationEditorHint");
+const addNotePanel = document.querySelector("#addNotePanel");
+const addNoteHint = document.querySelector("#addNoteHint");
+const addNoteButtons = document.querySelector("#addNoteButtons");
 const beatCount = document.querySelector("#beatCount");
 const beatTargetLabel = document.querySelector("#beatTargetLabel");
 const targetMeasureLabel = document.querySelector("#targetMeasureLabel");
@@ -2277,6 +2343,11 @@ function bindEvents() {
     const button = event.target.closest("[data-hint-note]");
     if (!button) return;
     insertHintNote(button.dataset.hintNote);
+  });
+  addNoteButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-add-note]");
+    if (!button) return;
+    appendAvailableNote(NOTE_BY_ID[button.dataset.addNote]);
   });
   seedLength.addEventListener("change", () => {
     state.selectedNoteIds = state.selectedNoteIds.slice(0, selectedSeedTargetLength());
@@ -2478,7 +2549,7 @@ function addOrReplaceNote(note, durationOverride = null) {
 
   const target = Number(targetBeats.value);
   const currentBeats = totalBeats();
-  const duration = durationOverride || DEFAULT_NOTE_DURATION;
+  const duration = durationOverride || addableDurationForRemaining(target - currentBeats) || DEFAULT_NOTE_DURATION;
   if (currentBeats + duration > target + 2) {
     showToast(`목표보다 너무 길어요. 현재 ${formatBeat(currentBeats)}박이에요.`);
     return;
@@ -2488,6 +2559,32 @@ function addOrReplaceNote(note, durationOverride = null) {
   saveMelody();
   render();
   previewNote(note, duration);
+}
+
+function addableDurationForRemaining(remaining = remainingBeats()) {
+  if (remaining >= 1) return 1;
+  if (remaining >= 0.5) return 0.5;
+  return 0;
+}
+
+function appendAvailableNote(note) {
+  if (!note) return;
+  const remaining = remainingBeats();
+  const duration = addableDurationForRemaining(remaining);
+  if (!duration) {
+    showToast("남은 박자가 없어요. 음표를 줄이거나 길이를 늘려 주세요.");
+    return;
+  }
+  if (totalBeats() + duration > Number(targetBeats.value) + 0.001) {
+    showToast("남은 박자 안에 들어가지 않아요.");
+    return;
+  }
+  state.selectedCardIndex = null;
+  state.melody.push(toMelodyNote(note, duration));
+  saveMelody();
+  render();
+  previewNote(note, duration);
+  showToast(`${note.solfege} ${durationLabel(duration)}을 추가했어요.`);
 }
 
 function toMelodyNote(note, duration) {
@@ -2656,6 +2753,7 @@ function render() {
   renderMotifWorkshop();
   renderLoudModeButton();
   renderDurationEditor();
+  renderAddNotePanel();
 }
 
 function renderLoudModeButton() {
@@ -2670,6 +2768,30 @@ function renderDurationEditor() {
   durationEditorHint.textContent = hasSelection
     ? `현재 ${durationLabel(note.duration)}입니다. 왼쪽으로 밀면 짧아지고, 오른쪽으로 밀면 길어집니다.`
     : "음표를 누른 채 왼쪽은 짧게, 오른쪽은 길게 밀어 보세요. 위아래는 음높이입니다.";
+}
+
+function renderAddNotePanel() {
+  const remaining = remainingBeats();
+  const duration = addableDurationForRemaining(remaining);
+  const canAdd = state.melody.length > 0 && duration > 0;
+  addNotePanel.hidden = !canAdd;
+  addNoteButtons.innerHTML = "";
+  if (!canAdd) return;
+
+  addNoteHint.textContent = `${formatBeat(remaining)}박 남음 · 새 음표는 ${durationLabel(duration)}으로 들어갑니다.`;
+  PENTATONIC_KEY_IDS.forEach((noteId) => {
+    const note = NOTE_BY_ID[noteId];
+    if (!note || note.type === "rest") return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "add-note-key";
+    button.dataset.addNote = note.id;
+    button.innerHTML = `
+      <strong>${keyboardKeyLabel(note)}</strong>
+      <small>${durationSymbol(duration)}</small>
+    `;
+    addNoteButtons.appendChild(button);
+  });
 }
 
 function dragStep(delta, stepPixels) {
@@ -4919,9 +5041,9 @@ function loadSavedMelody() {
 }
 
 function durationLabel(duration) {
-  if (duration === 0.5) return "반 박";
-  if (duration === 2) return "두 박";
-  return "한 박";
+  if (duration === 0.5) return "반박";
+  if (duration === 2) return "2박";
+  return "1박";
 }
 
 function durationSymbol(duration) {
