@@ -1929,10 +1929,11 @@ textarea.hidden-textarea {
           <div class="money-panel" aria-labelledby="moneyTitle">
             <div class="money-heading">
               <span id="moneyTitle">화음진행</span>
-              <small>다장조의 C, Dm, Em, F, G, Am, Bdim 전체를 사용할 수 있습니다.</small>
+              <small>멜로디가 있으면 C, Dm, Em, F, G, Am, Bdim 중 어울리는 화음으로 자동 조정됩니다.</small>
             </div>
             <div id="moneyButtons" class="money-buttons" role="group" aria-label="화음진행 선택">
-              <button class="money-btn active" data-progression="pop" type="button">기본 팝</button>
+              <button class="money-btn active" data-progression="melodyFit" type="button">멜로디 맞춤</button>
+              <button class="money-btn" data-progression="pop" type="button">기본 팝</button>
               <button class="money-btn" data-progression="brightLoop" type="button">밝은 순환</button>
               <button class="money-btn" data-progression="emotional" type="button">감성 시작</button>
               <button class="money-btn" data-progression="lift" type="button">올라가는 느낌</button>
@@ -2140,15 +2141,20 @@ const SEED_SHAPE_LABELS = {
 };
 const CORE_IDS = ["C4", "D4", "E4", "G4", "A4", "C5"];
 const CHORD_LIBRARY = {
-  C: { name: "C", safe: ["C4", "E4", "G4", "C5"] },
-  Dm: { name: "Dm", safe: ["D4", "F4", "A4"] },
-  Em: { name: "Em", safe: ["E4", "G4", "B4"] },
-  F: { name: "F", safe: ["F4", "A4", "C4", "C5"] },
-  G: { name: "G", safe: ["G4", "B4", "D4"] },
-  Am: { name: "Am", safe: ["A4", "C4", "E4", "C5"] },
-  Bdim: { name: "Bdim", safe: ["B4", "D4", "F4"] },
+  C: { name: "C", tones: ["C", "E", "G"], safe: ["C4", "E4", "G4", "C5"] },
+  Dm: { name: "Dm", tones: ["D", "F", "A"], safe: ["D4", "F4", "A4"] },
+  Em: { name: "Em", tones: ["E", "G", "B"], safe: ["E4", "G4", "B4"] },
+  F: { name: "F", tones: ["F", "A", "C"], safe: ["F4", "A4", "C4", "C5"] },
+  G: { name: "G", tones: ["G", "B", "D"], safe: ["G4", "B4", "D4"] },
+  Am: { name: "Am", tones: ["A", "C", "E"], safe: ["A4", "C4", "E4", "C5"] },
+  Bdim: { name: "Bdim", tones: ["B", "D", "F"], safe: ["B4", "D4", "F4"] },
 };
+const DIATONIC_CHORD_NAMES = ["C", "Dm", "Em", "F", "G", "Am", "Bdim"];
 const CHORD_PROGRESSIONS = {
+  melodyFit: {
+    label: "멜로디 맞춤",
+    chords: ["C", "G", "Am", "F"],
+  },
   pop: {
     label: "기본 팝",
     chords: ["C", "G", "Am", "F"],
@@ -2300,7 +2306,7 @@ const state = {
   selectedNoteIds: [],
   selectedCardIndex: null,
   selectedStyle: "bright",
-  selectedProgression: "pop",
+  selectedProgression: "melodyFit",
   selectedSeedShape: "rise",
   hintStep: 0,
   timers: [],
@@ -4367,15 +4373,108 @@ function getInspirationProfile() {
 }
 
 function getMoneyProgression() {
-  return CHORD_PROGRESSIONS[state.selectedProgression] || CHORD_PROGRESSIONS.pop;
+  return CHORD_PROGRESSIONS[state.selectedProgression] || CHORD_PROGRESSIONS.melodyFit;
 }
 
 function getMoneyChords() {
-  return getMoneyProgression().chords.map((name) => CHORD_LIBRARY[name]);
+  const progression = getMoneyProgression();
+  const fallbackChords = progression.chords.map((name) => CHORD_LIBRARY[name]).filter(Boolean);
+  if (!hasSoundingMelody()) return fallbackChords;
+  return buildMelodyMatchedChords(Number(targetBeats.value), progression.chords);
 }
 
 function moneyChordText() {
   return getMoneyChords().map((chord) => chord.name).join(" - ");
+}
+
+function hasSoundingMelody() {
+  return state.melody.some((note) => note.type !== "rest");
+}
+
+function buildMelodyMatchedChords(target, preferredNames) {
+  const chordCount = Math.max(1, preferredNames.length || 4);
+  const span = target / chordCount;
+  const notesBySection = melodyNotesByChordSection(target, chordCount);
+  let previousName = null;
+
+  return Array.from({ length: chordCount }, (_, index) => {
+    const preferredName = preferredNames[index % preferredNames.length] || "C";
+    const chord = chooseChordForMelodySection(notesBySection[index] || [], previousName, preferredName, index, chordCount);
+    previousName = chord.name;
+    return chord;
+  });
+}
+
+function melodyNotesByChordSection(target, chordCount) {
+  const sections = Array.from({ length: chordCount }, () => []);
+  const span = target / chordCount;
+  let cursor = 0;
+
+  state.melody.forEach((note) => {
+    const start = cursor;
+    const end = cursor + note.duration;
+    cursor = end;
+    if (note.type === "rest") return;
+
+    sections.forEach((section, index) => {
+      const sectionStart = index * span;
+      const sectionEnd = sectionStart + span;
+      const overlap = Math.max(0, Math.min(end, sectionEnd) - Math.max(start, sectionStart));
+      if (overlap <= 0) return;
+      section.push({
+        id: note.id,
+        tone: noteTone(note.id),
+        overlap,
+        startsHere: start >= sectionStart && start < sectionEnd,
+      });
+    });
+  });
+
+  return sections;
+}
+
+function chooseChordForMelodySection(notes, previousName, preferredName, index, chordCount) {
+  let bestChord = CHORD_LIBRARY[preferredName] || CHORD_LIBRARY.C;
+  let bestScore = Number.NEGATIVE_INFINITY;
+
+  DIATONIC_CHORD_NAMES.forEach((name) => {
+    const chord = CHORD_LIBRARY[name];
+    let score = 0;
+
+    notes.forEach((note) => {
+      if (chord.tones.includes(note.tone)) {
+        score += note.overlap * 8 + (note.startsHere ? 1.2 : 0);
+      } else {
+        score -= note.overlap * 2.4;
+      }
+    });
+
+    if (name === preferredName) score += 1.1;
+    if (name === previousName) score += notes.length ? 0.15 : -0.35;
+    if (index === 0 && name === "C") score += 1.4;
+    if (index === chordCount - 1 && (name === "C" || name === "G")) score += 0.7;
+    if (name === "Bdim" && !notes.some((note) => ["B", "D", "F"].includes(note.tone))) score -= 2.2;
+
+    if (score > bestScore) {
+      bestScore = score;
+      bestChord = chord;
+    }
+  });
+
+  return bestChord;
+}
+
+function noteTone(noteId) {
+  return {
+    C4: "C",
+    C5: "C",
+    D4: "D",
+    E4: "E",
+    F4: "F",
+    G4: "G",
+    A4: "A",
+    B4: "B",
+  }[noteId] || "";
 }
 
 function chordForBeatValue(beatStart, target) {
