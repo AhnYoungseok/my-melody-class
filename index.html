@@ -980,7 +980,7 @@ button.active,
   background: #fffef9;
   border: 1px solid #e7b45f;
   border-radius: 6px;
-  cursor: ns-resize;
+  cursor: grab;
   touch-action: none;
   text-align: center;
   user-select: none;
@@ -1074,6 +1074,7 @@ button.active,
 
 .note-card.dragging {
   z-index: 3;
+  cursor: grabbing;
   transform: translateY(-2px);
   box-shadow: inset 0 0 0 3px rgba(32, 161, 151, 0.48), 0 12px 24px rgba(38, 122, 69, 0.18);
 }
@@ -1100,6 +1101,17 @@ button.active,
 .duration-editor-title {
   color: #7c2d12;
   font-weight: 900;
+}
+
+.duration-editor-hint {
+  color: #533314;
+  font-size: 0.95rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.duration-editor.disabled .duration-editor-hint {
+  color: #8a7461;
 }
 
 .duration-editor button {
@@ -1912,11 +1924,7 @@ textarea.hidden-textarea {
           <ol id="melodyBoard" class="melody-board" aria-live="polite"></ol>
           <div id="durationEditor" class="duration-editor" aria-label="선택한 음표 길이 조정">
             <span class="duration-editor-title">음표 길이</span>
-            <button id="durationShortenBtn" type="button" aria-label="선택한 음표 길이 줄이기">−</button>
-            <button type="button" data-duration-choice="0.5">반박</button>
-            <button type="button" data-duration-choice="1">1박</button>
-            <button type="button" data-duration-choice="2">2박</button>
-            <button id="durationLengthenBtn" type="button" aria-label="선택한 음표 길이 늘리기">＋</button>
+            <span id="durationEditorHint" class="duration-editor-hint">음표를 누른 채 왼쪽은 짧게, 오른쪽은 길게 밀어 보세요.</span>
           </div>
           <div class="score-box">
             <div class="score-heading">
@@ -2157,6 +2165,8 @@ const state = {
 };
 
 const PITCH_DRAG_STEP_PX = 30;
+const DURATION_DRAG_STEP_PX = 46;
+const DRAG_AXIS_LOCK_PX = 12;
 let pitchDragState = null;
 let suppressMelodyCardClickUntil = 0;
 
@@ -2168,9 +2178,7 @@ const loudModeBtn = document.querySelector("#loudModeBtn");
 const boardTitle = document.querySelector("#boardTitle");
 const melodyBoard = document.querySelector("#melodyBoard");
 const durationEditor = document.querySelector("#durationEditor");
-const durationShortenBtn = document.querySelector("#durationShortenBtn");
-const durationLengthenBtn = document.querySelector("#durationLengthenBtn");
-const durationChoiceButtons = Array.from(document.querySelectorAll("[data-duration-choice]"));
+const durationEditorHint = document.querySelector("#durationEditorHint");
 const beatCount = document.querySelector("#beatCount");
 const beatTargetLabel = document.querySelector("#beatTargetLabel");
 const targetMeasureLabel = document.querySelector("#targetMeasureLabel");
@@ -2269,13 +2277,6 @@ function bindEvents() {
     const button = event.target.closest("[data-hint-note]");
     if (!button) return;
     insertHintNote(button.dataset.hintNote);
-  });
-  durationShortenBtn.addEventListener("click", () => adjustSelectedNoteDuration(-1));
-  durationLengthenBtn.addEventListener("click", () => adjustSelectedNoteDuration(1));
-  durationEditor.addEventListener("click", (event) => {
-    const button = event.target.closest("[data-duration-choice]");
-    if (!button) return;
-    setSelectedNoteDuration(Number(button.dataset.durationChoice));
   });
   seedLength.addEventListener("change", () => {
     state.selectedNoteIds = state.selectedNoteIds.slice(0, selectedSeedTargetLength());
@@ -2508,14 +2509,22 @@ function selectedNote() {
   return Number.isInteger(state.selectedCardIndex) ? state.melody[state.selectedCardIndex] : null;
 }
 
-function selectedNoteWithoutCurrentBeats() {
-  const note = selectedNote();
+function beatsWithoutNoteAt(index) {
+  const note = Number.isInteger(index) ? state.melody[index] : null;
   return totalBeats() - (note?.duration || 0);
 }
 
-function canUseDuration(duration) {
+function selectedNoteWithoutCurrentBeats() {
+  return beatsWithoutNoteAt(state.selectedCardIndex);
+}
+
+function canUseDurationAt(index, duration) {
   const target = Number(targetBeats.value);
-  return selectedNoteWithoutCurrentBeats() + duration <= target + 2;
+  return beatsWithoutNoteAt(index) + duration <= target + 2;
+}
+
+function canUseDuration(duration) {
+  return canUseDurationAt(state.selectedCardIndex, duration);
 }
 
 function setSelectedNoteDuration(duration) {
@@ -2614,7 +2623,7 @@ function render() {
     if (hookIndexes.has(index)) li.classList.add("hook");
     if (isMeasureStart(cursor)) li.classList.add("measure-start");
     li.dataset.index = index;
-    li.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 드래그하면 음높이를 바꿀 수 있습니다.`);
+    li.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 밀면 음높이, 왼쪽과 오른쪽으로 밀면 길이를 바꿀 수 있습니다.`);
     li.innerHTML = `
       <button class="remove-card" type="button" aria-label="${index + 1}번째 카드 삭제">×</button>
       ${hookIndexes.has(index) ? '<span class="hook-badge">모티브</span>' : ""}
@@ -2658,30 +2667,38 @@ function renderDurationEditor() {
   const note = selectedNote();
   const hasSelection = Boolean(note);
   durationEditor.classList.toggle("disabled", !hasSelection);
-  durationShortenBtn.disabled = !hasSelection || durationIndex(note?.duration) <= 0;
-  durationLengthenBtn.disabled = !hasSelection || durationIndex(note?.duration) >= NOTE_DURATIONS.length - 1;
-  durationChoiceButtons.forEach((button) => {
-    const duration = Number(button.dataset.durationChoice);
-    button.disabled = !hasSelection || !canUseDuration(duration);
-    button.classList.toggle("active", hasSelection && normalizeDuration(note.duration) === duration);
-    button.setAttribute("aria-pressed", String(hasSelection && normalizeDuration(note?.duration) === duration));
-  });
+  durationEditorHint.textContent = hasSelection
+    ? `현재 ${durationLabel(note.duration)}입니다. 왼쪽으로 밀면 짧아지고, 오른쪽으로 밀면 길어집니다.`
+    : "음표를 누른 채 왼쪽은 짧게, 오른쪽은 길게 밀어 보세요. 위아래는 음높이입니다.";
+}
+
+function dragStep(delta, stepPixels) {
+  const rawStep = delta / stepPixels;
+  return rawStep < 0 ? Math.ceil(rawStep) : Math.floor(rawStep);
 }
 
 function startPitchDrag(event, card, index) {
   if (event.button !== undefined && event.button !== 0) return;
   if (event.target.closest(".remove-card")) return;
   const note = state.melody[index];
-  const scaleIndex = PENTATONIC_KEY_IDS.indexOf(note?.id);
-  if (!note || note.type === "rest" || scaleIndex < 0) return;
+  if (!note) return;
+  const scaleIndex = PENTATONIC_KEY_IDS.indexOf(note.id);
   pitchDragState = {
     pointerId: event.pointerId,
     index,
     card,
+    startX: event.clientX,
     startY: event.clientY,
     originalScaleIndex: scaleIndex,
     currentScaleIndex: scaleIndex,
+    originalDurationIndex: durationIndex(note.duration),
+    currentDurationIndex: durationIndex(note.duration),
+    mode: null,
+    pitchEnabled: note.type !== "rest" && scaleIndex >= 0,
     changed: false,
+    pitchChanged: false,
+    durationChanged: false,
+    blockedDuration: false,
   };
   try {
     card.setPointerCapture(event.pointerId);
@@ -2693,15 +2710,58 @@ function startPitchDrag(event, card, index) {
 function handlePitchDragMove(event) {
   const drag = pitchDragState;
   if (!drag || event.pointerId !== drag.pointerId) return;
-  const rawStep = (drag.startY - event.clientY) / PITCH_DRAG_STEP_PX;
-  const step = rawStep < 0 ? Math.ceil(rawStep) : Math.floor(rawStep);
+  const deltaX = event.clientX - drag.startX;
+  const deltaY = drag.startY - event.clientY;
+  if (!drag.mode) {
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    if (absX < DRAG_AXIS_LOCK_PX && absY < DRAG_AXIS_LOCK_PX) return;
+    if (absX > absY) {
+      drag.mode = "duration";
+    } else if (drag.pitchEnabled) {
+      drag.mode = "pitch";
+    } else {
+      return;
+    }
+    state.selectedCardIndex = drag.index;
+    drag.card.classList.add("selected", "dragging");
+  }
+  if (drag.mode === "duration") {
+    handleDurationDragStep(event, drag, deltaX);
+    return;
+  }
+  handlePitchDragStep(event, drag, deltaY);
+}
+
+function handlePitchDragStep(event, drag, deltaY) {
+  if (!drag.pitchEnabled) return;
+  event.preventDefault();
+  const step = dragStep(deltaY, PITCH_DRAG_STEP_PX);
   const nextScaleIndex = clampNumber(drag.originalScaleIndex + step, 0, PENTATONIC_KEY_IDS.length - 1);
   if (nextScaleIndex === drag.currentScaleIndex) return;
-  event.preventDefault();
   const nextNoteId = PENTATONIC_KEY_IDS[nextScaleIndex];
   updateMelodyCardPitch(drag.index, nextNoteId, drag.card);
   drag.currentScaleIndex = nextScaleIndex;
   drag.changed = true;
+  drag.pitchChanged = true;
+  state.selectedCardIndex = drag.index;
+  drag.card.classList.add("selected", "dragging");
+}
+
+function handleDurationDragStep(event, drag, deltaX) {
+  event.preventDefault();
+  const step = dragStep(deltaX, DURATION_DRAG_STEP_PX);
+  const nextDurationIndex = clampNumber(drag.originalDurationIndex + step, 0, NOTE_DURATIONS.length - 1);
+  if (nextDurationIndex === drag.currentDurationIndex) return;
+  const nextDuration = NOTE_DURATIONS[nextDurationIndex];
+  if (!canUseDurationAt(drag.index, nextDuration)) {
+    drag.blockedDuration = true;
+    return;
+  }
+  updateMelodyCardDuration(drag.index, nextDuration, drag.card);
+  drag.currentDurationIndex = nextDurationIndex;
+  drag.changed = true;
+  drag.durationChanged = true;
   state.selectedCardIndex = drag.index;
   drag.card.classList.add("selected", "dragging");
 }
@@ -2728,16 +2788,29 @@ function completePitchDrag(keepChanges) {
   }
   drag.card.classList.remove("dragging");
   pitchDragState = null;
-  if (!drag.changed) return;
+  if (!drag.changed) {
+    if (drag.blockedDuration) showToast("목표보다 너무 길어요. 다른 음표를 줄여 주세요.");
+    return;
+  }
   suppressMelodyCardClickUntil = Date.now() + 350;
   if (!keepChanges) {
-    updateMelodyCardPitch(drag.index, PENTATONIC_KEY_IDS[drag.originalScaleIndex], drag.card, false);
+    if (drag.pitchChanged) updateMelodyCardPitch(drag.index, PENTATONIC_KEY_IDS[drag.originalScaleIndex], drag.card, false);
+    if (drag.durationChanged) updateMelodyCardDuration(drag.index, NOTE_DURATIONS[drag.originalDurationIndex], drag.card, false);
   }
   state.selectedCardIndex = drag.index;
   saveMelody();
   const changedNote = state.melody[drag.index];
+  const pitchChanged = drag.pitchChanged;
+  const durationChanged = drag.durationChanged;
   render();
-  if (changedNote) showToast(`${changedNote.solfege}로 바꿨어요.`);
+  if (!changedNote) return;
+  if (pitchChanged && durationChanged) {
+    showToast(`${changedNote.solfege}, ${durationLabel(changedNote.duration)}으로 바꿨어요.`);
+  } else if (durationChanged) {
+    showToast(`${durationLabel(changedNote.duration)}으로 바꿨어요.`);
+  } else {
+    showToast(`${changedNote.solfege}로 바꿨어요.`);
+  }
 }
 
 function updateMelodyCardPitch(index, noteId, card, shouldPreview = true) {
@@ -2750,11 +2823,26 @@ function updateMelodyCardPitch(index, noteId, card, shouldPreview = true) {
   if (shouldPreview) previewNote(nextNote, Math.min(normalizeDuration(current.duration), 0.6));
 }
 
+function updateMelodyCardDuration(index, duration, card, shouldPreview = true) {
+  const current = state.melody[index];
+  if (!current) return;
+  const nextDuration = normalizeDuration(duration);
+  if (current.duration === nextDuration) return;
+  state.melody[index] = toMelodyNote(current, nextDuration);
+  updateRenderedMelodyCard(card, index, state.melody[index]);
+  beatCount.textContent = formatBeat(totalBeats());
+  meterFill.style.width = `${Math.min((totalBeats() / Number(targetBeats.value)) * 100, 100)}%`;
+  melodyText.value = melodyToText();
+  renderScorePreview();
+  if (shouldPreview) previewNote(state.melody[index], Math.min(nextDuration, 0.7));
+}
+
 function updateRenderedMelodyCard(card, index, note) {
   if (!card || !note) return;
-  card.classList.remove("core", "passing", "rest");
-  card.classList.add(note.type);
-  card.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 드래그하면 음높이를 바꿀 수 있습니다.`);
+  card.classList.remove("core", "passing", "rest", "duration-half", "duration-one", "duration-long");
+  card.classList.add(note.type, durationClass(note.duration));
+  card.style.gridColumn = `span ${durationGridUnits(note.duration)}`;
+  card.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 밀면 음높이, 왼쪽과 오른쪽으로 밀면 길이를 바꿀 수 있습니다.`);
   const name = card.querySelector(".jeonggan-note");
   const pitch = card.querySelector(".jeonggan-pitch");
   if (name) name.textContent = note.solfege;
