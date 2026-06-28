@@ -976,7 +976,7 @@ button.active,
   grid-template-rows: auto 1fr auto;
   min-height: 104px;
   height: 100%;
-  padding: 9px 8px 8px;
+  padding: 9px 8px 28px;
   background: #fffef9;
   border: 1px solid #e7b45f;
   border-radius: 6px;
@@ -1079,10 +1079,38 @@ button.active,
   box-shadow: inset 0 0 0 3px rgba(32, 161, 151, 0.48), 0 12px 24px rgba(38, 122, 69, 0.18);
 }
 
+.note-card.reordering {
+  border-color: #0d6c77;
+  background: #f0fffb;
+  opacity: 0.88;
+}
+
 .note-card.playing {
   z-index: 2;
   transform: none;
   box-shadow: inset 0 0 0 3px rgba(38, 122, 69, 0.42);
+}
+
+.duration-handle {
+  position: absolute;
+  left: 50%;
+  bottom: 4px;
+  min-width: 40px;
+  min-height: 22px;
+  padding: 1px 8px 2px;
+  color: #7c2d12;
+  background: #fff7ed;
+  border: 1px solid #efc26f;
+  border-radius: 999px;
+  cursor: ew-resize;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateX(-50%);
+}
+
+.duration-handle:active {
+  background: #fed7aa;
 }
 
 .duration-editor {
@@ -2004,7 +2032,7 @@ textarea.hidden-textarea {
           <ol id="melodyBoard" class="melody-board" aria-live="polite"></ol>
           <div id="durationEditor" class="duration-editor" aria-label="선택한 음표 길이 조정">
             <span class="duration-editor-title">음표 길이</span>
-            <span id="durationEditorHint" class="duration-editor-hint">음표를 누른 채 왼쪽은 짧게, 오른쪽은 길게 밀어 보세요.</span>
+            <span id="durationEditorHint" class="duration-editor-hint">카드를 끌면 자리가 바뀌고, 카드의 ↔ 손잡이는 길이를 바꿉니다.</span>
             <div class="duration-move-actions" aria-label="선택한 음표 자리 이동">
               <button id="moveNoteLeftBtn" type="button">← 자리</button>
               <button id="moveNoteRightBtn" type="button">자리 →</button>
@@ -2649,14 +2677,21 @@ function moveSelectedNote(direction) {
     return;
   }
   const nextIndex = index + direction;
-  if (nextIndex < 0 || nextIndex >= state.melody.length) return;
-  const [note] = state.melody.splice(index, 1);
-  state.melody.splice(nextIndex, 0, note);
-  state.selectedCardIndex = nextIndex;
+  moveNoteToIndex(index, nextIndex, { preview: true, announce: true });
+}
+
+function moveNoteToIndex(fromIndex, toIndex, options = {}) {
+  if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex)) return false;
+  if (fromIndex < 0 || fromIndex >= state.melody.length) return false;
+  if (toIndex < 0 || toIndex >= state.melody.length || fromIndex === toIndex) return false;
+  const [note] = state.melody.splice(fromIndex, 1);
+  state.melody.splice(toIndex, 0, note);
+  state.selectedCardIndex = toIndex;
   saveMelody();
   render();
-  previewNote(note, Math.min(normalizeDuration(note.duration), 0.6));
-  showToast(`${nextIndex + 1}번째 자리로 옮겼어요.`);
+  if (options.preview) previewNote(note, Math.min(normalizeDuration(note.duration), 0.6));
+  if (options.announce) showToast(`${toIndex + 1}번째 자리로 옮겼어요.`);
+  return true;
 }
 
 function toMelodyNote(note, duration) {
@@ -2793,13 +2828,14 @@ function render() {
     if (hookIndexes.has(index)) li.classList.add("hook");
     if (isMeasureStart(cursor)) li.classList.add("measure-start");
     li.dataset.index = index;
-    li.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 밀면 음높이, 왼쪽과 오른쪽으로 밀면 길이를 바꿀 수 있습니다.`);
+    li.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 카드 본체를 끌면 자리를 옮기고, 위아래로 밀면 음높이를 바꿀 수 있습니다. 카드 아래의 ↔ 손잡이는 길이를 바꿉니다.`);
     li.innerHTML = `
       <button class="remove-card" type="button" aria-label="${index + 1}번째 카드 삭제">×</button>
       ${hookIndexes.has(index) ? '<span class="hook-badge">모티브</span>' : ""}
       <div class="jeonggan-meta"><span class="jeonggan-index">${index + 1}</span><span class="jeonggan-chord">${chordForBeat(cursor).name}</span></div>
       <strong class="jeonggan-note">${note.solfege}</strong>
       <small class="jeonggan-pitch">${durationSymbol(note.duration)} ${note.pitch === "rest" ? "쉼표" : note.pitch}</small>
+      <button class="duration-handle" type="button" aria-label="${index + 1}번째 음표 길이 조절">↔</button>
     `;
     li.addEventListener("pointerdown", (event) => startPitchDrag(event, li, index));
     li.addEventListener("click", () => {
@@ -2815,6 +2851,11 @@ function render() {
       saveMelody();
       render();
     });
+    li.querySelector(".duration-handle").addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+      startPitchDrag(event, li, index, { durationOnly: true });
+    });
+    li.querySelector(".duration-handle").addEventListener("click", (event) => event.stopPropagation());
     melodyBoard.appendChild(li);
     cursor += note.duration;
   });
@@ -2839,8 +2880,8 @@ function renderDurationEditor() {
   const hasSelection = Boolean(note);
   durationEditor.classList.toggle("disabled", !hasSelection);
   durationEditorHint.textContent = hasSelection
-    ? `현재 ${durationLabel(note.duration)}입니다. 좌우로 밀면 길이, 아래 버튼으로 자리를 바꿉니다.`
-    : "음표를 누른 채 왼쪽은 짧게, 오른쪽은 길게 밀어 보세요. 선택하면 자리도 옮길 수 있습니다.";
+    ? `현재 ${durationLabel(note.duration)}입니다. 카드 본체는 자리 이동, ↔ 손잡이는 길이 조절입니다.`
+    : "카드 본체를 끌면 자리가 바뀌고, 카드의 ↔ 손잡이는 길이를 바꿉니다.";
   moveNoteLeftBtn.disabled = !hasSelection || state.selectedCardIndex <= 0;
   moveNoteRightBtn.disabled = !hasSelection || state.selectedCardIndex >= state.melody.length - 1;
 }
@@ -2880,9 +2921,10 @@ function dragStep(delta, stepPixels) {
   return rawStep < 0 ? Math.ceil(rawStep) : Math.floor(rawStep);
 }
 
-function startPitchDrag(event, card, index) {
+function startPitchDrag(event, card, index, options = {}) {
   if (event.button !== undefined && event.button !== 0) return;
   if (event.target.closest(".remove-card")) return;
+  if (!options.durationOnly && event.target.closest(".duration-handle")) return;
   const note = state.melody[index];
   if (!note) return;
   const scaleIndex = PENTATONIC_KEY_IDS.indexOf(note.id);
@@ -2897,10 +2939,13 @@ function startPitchDrag(event, card, index) {
     originalDurationIndex: durationIndex(note.duration),
     currentDurationIndex: durationIndex(note.duration),
     mode: null,
+    durationOnly: Boolean(options.durationOnly),
     pitchEnabled: note.type !== "rest" && scaleIndex >= 0,
+    reorderTargetIndex: index,
     changed: false,
     pitchChanged: false,
     durationChanged: false,
+    reorderChanged: false,
     blockedDuration: false,
   };
   try {
@@ -2919,8 +2964,10 @@ function handlePitchDragMove(event) {
     const absX = Math.abs(deltaX);
     const absY = Math.abs(deltaY);
     if (absX < DRAG_AXIS_LOCK_PX && absY < DRAG_AXIS_LOCK_PX) return;
-    if (absX > absY) {
+    if (drag.durationOnly) {
       drag.mode = "duration";
+    } else if (absX > absY) {
+      drag.mode = "reorder";
     } else if (drag.pitchEnabled) {
       drag.mode = "pitch";
     } else {
@@ -2931,6 +2978,10 @@ function handlePitchDragMove(event) {
   }
   if (drag.mode === "duration") {
     handleDurationDragStep(event, drag, deltaX);
+    return;
+  }
+  if (drag.mode === "reorder") {
+    handleReorderDragStep(event, drag);
     return;
   }
   handlePitchDragStep(event, drag, deltaY);
@@ -2949,6 +3000,35 @@ function handlePitchDragStep(event, drag, deltaY) {
   drag.pitchChanged = true;
   state.selectedCardIndex = drag.index;
   drag.card.classList.add("selected", "dragging");
+}
+
+function handleReorderDragStep(event, drag) {
+  event.preventDefault();
+  const targetIndex = noteIndexAtPoint(event.clientX, event.clientY, drag.index);
+  drag.reorderTargetIndex = targetIndex;
+  drag.changed = targetIndex !== drag.index;
+  drag.reorderChanged = drag.changed;
+  state.selectedCardIndex = drag.index;
+  drag.card.classList.add("selected", "dragging", "reordering");
+}
+
+function noteIndexAtPoint(x, y, fallbackIndex) {
+  const cards = Array.from(melodyBoard.querySelectorAll(".note-card"));
+  if (cards.length === 0) return fallbackIndex;
+  let bestIndex = fallbackIndex;
+  let bestDistance = Number.POSITIVE_INFINITY;
+  cards.forEach((card) => {
+    const rect = card.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const distance = Math.hypot((x - centerX) * 0.85, (y - centerY) * 1.2);
+    const index = Number(card.dataset.index);
+    if (Number.isInteger(index) && distance < bestDistance) {
+      bestDistance = distance;
+      bestIndex = index;
+    }
+  });
+  return bestIndex;
 }
 
 function handleDurationDragStep(event, drag, deltaX) {
@@ -2989,13 +3069,20 @@ function completePitchDrag(keepChanges) {
   } catch {
     // 포인터 캡처가 없는 환경에서는 무시합니다.
   }
-  drag.card.classList.remove("dragging");
+  drag.card.classList.remove("dragging", "reordering");
   pitchDragState = null;
   if (!drag.changed) {
+    if (drag.mode === "reorder") suppressMelodyCardClickUntil = Date.now() + 350;
     if (drag.blockedDuration) showToast("목표보다 너무 길어요. 다른 음표를 줄여 주세요.");
     return;
   }
   suppressMelodyCardClickUntil = Date.now() + 350;
+  if (drag.reorderChanged) {
+    if (keepChanges) {
+      moveNoteToIndex(drag.index, drag.reorderTargetIndex, { preview: true, announce: true });
+    }
+    return;
+  }
   if (!keepChanges) {
     if (drag.pitchChanged) updateMelodyCardPitch(drag.index, PENTATONIC_KEY_IDS[drag.originalScaleIndex], drag.card, false);
     if (drag.durationChanged) updateMelodyCardDuration(drag.index, NOTE_DURATIONS[drag.originalDurationIndex], drag.card, false);
@@ -3045,7 +3132,7 @@ function updateRenderedMelodyCard(card, index, note) {
   card.classList.remove("core", "passing", "rest", "duration-half", "duration-one", "duration-long");
   card.classList.add(note.type, durationClass(note.duration));
   card.style.gridColumn = `span ${durationGridUnits(note.duration)}`;
-  card.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 위아래로 밀면 음높이, 왼쪽과 오른쪽으로 밀면 길이를 바꿀 수 있습니다.`);
+  card.setAttribute("aria-label", `${index + 1}번째 ${note.solfege} 음. 카드 본체를 끌면 자리를 옮기고, 위아래로 밀면 음높이를 바꿀 수 있습니다. 카드 아래의 ↔ 손잡이는 길이를 바꿉니다.`);
   const name = card.querySelector(".jeonggan-note");
   const pitch = card.querySelector(".jeonggan-pitch");
   if (name) name.textContent = note.solfege;
