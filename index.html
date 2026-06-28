@@ -1173,7 +1173,7 @@ button.active,
 
 .add-note-buttons {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(9, minmax(0, 1fr));
   gap: 6px;
 }
 
@@ -1196,6 +1196,16 @@ button.active,
   color: #0f766e;
   font-size: 0.72rem;
   font-weight: 800;
+}
+
+.add-note-key.rest {
+  color: #4b5563;
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.add-note-key.rest small {
+  color: #64748b;
 }
 
 .add-note-key:disabled {
@@ -2083,6 +2093,7 @@ const NOTES = [
 
 const NOTE_BY_ID = Object.fromEntries(NOTES.map((note) => [note.id, note]));
 const PENTATONIC_KEY_IDS = ["C4", "D4", "E4", "F4", "G4", "A4", "B4", "C5"];
+const ADD_NOTE_KEY_IDS = [...PENTATONIC_KEY_IDS, "REST"];
 const MAX_SEED_NOTES = 12;
 const SEED_SHAPE_IDS = ["rise", "fall", "wave", "repeat", "leap", "return", "echo", "finish"];
 const SEED_SHAPE_LABELS = {
@@ -2515,10 +2526,12 @@ function renderNoteButtons() {
 }
 
 function keyboardKeyLabel(note) {
+  if (note.id === "REST") return "쉼표";
   return note.id === "C5" ? "도" : note.solfege;
 }
 
 function keyboardKeyDetail(note) {
+  if (note.id === "REST") return "쉼";
   return note.id === "C5" ? "높은 도" : note.pitch;
 }
 
@@ -2845,12 +2858,12 @@ function renderAddNotePanel() {
     addNoteHint.textContent = `현재 길이가 찼어요 · 누르면 길이를 늘려 ${durationLabel(duration)}으로 추가합니다.`;
   }
 
-  PENTATONIC_KEY_IDS.forEach((noteId) => {
+  ADD_NOTE_KEY_IDS.forEach((noteId) => {
     const note = NOTE_BY_ID[noteId];
-    if (!note || note.type === "rest") return;
+    if (!note) return;
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "add-note-key";
+    button.className = `add-note-key ${note.type}`;
     button.dataset.addNote = note.id;
     button.disabled = !canAdd;
     button.innerHTML = `
